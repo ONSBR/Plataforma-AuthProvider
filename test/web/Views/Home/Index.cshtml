@@ -1,0 +1,167 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div>
+
+    <form class="form-horizontal">
+        <fieldset>
+
+            <!-- Form Name -->
+            <legend>Form Name</legend>
+
+            <!-- Text input-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="login">Login</label>
+                <div class="col-md-4">
+                    <input id="login" name="login" type="text" placeholder="Login" class="form-control input-md" value="ONS\lucilio.pitang">
+                </div>
+            </div>
+
+            <!-- Text input-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="senha">Senha</label>
+                <div class="col-md-4">
+                    <input id="senha" name="senha" type="password" placeholder="Senha" class="form-control input-md" value="abc@678954321">
+                </div>
+            </div>
+
+            <!-- Button -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="submit"></label>
+                <div class="col-md-4">
+                    <button id="enviar" type="button" class="btn btn-primary">Logar</button>
+                </div>
+            </div>
+
+            <!-- Textarea -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="textarea">Token</label>
+                <div class="col-md-4">
+                    <textarea class="form-control" id="textarea" name="textarea" style="min-height: 150px">default text</textarea>
+                </div>
+            </div>
+
+            <!-- Textarea -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="textarea">Refresh Token</label>
+                <div class="col-md-4">
+                    <textarea class="form-control" id="refreshToken" name="textarea" style="min-height: 150px">default text</textarea>
+                </div>
+            </div>
+
+            <!-- Button Drop Down -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="token">Requisicao com token</label>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input id="token" name="token" class="form-control" placeholder="Token" type="text">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                Action
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu pull-right">
+                                <li><a id="Testar">Testar</a></li>
+                                <li><a id="Regerar">Regerar Token</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Textarea -->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="textarea">Clams</label>
+                <div class="col-md-4">
+                    <textarea class="form-control" id="textarea-protected" name="textarea" style="min-height: 150px">default text</textarea>
+                </div>
+            </div>
+
+        </fieldset>
+    </form>
+
+
+</div>
+<script type="text/javascript">
+
+    function onload() {
+        var clientId = "INTANEEL";
+        var url = "http://local.ons.org.br/";
+        var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": "https://poptst.ons.org.br/ons.pop.federation/oauth2/token",
+            "method": "POST",
+            "headers": {
+                "content-type": "application/x-www-form-urlencoded",
+                "accept": "application/json"
+            }
+        }
+    
+        $("#enviar").click(function () {
+            alert('teste');
+            settings.data = {
+                "username": $("#login").val(),
+                "password": $("#senha").val(),
+                "grant_type": "password",
+                "client_id": clientId
+            }
+
+            console.log(settings);
+            $.ajax(settings).done(function (response) {
+                console.log(response);
+                $("#textarea").val(JSON.stringify(response))
+                $("#token").val(response.access_token)
+                $("#refreshToken").val(response.refresh_token)
+            }).fail(function (xhr, status, err) {
+                $("#textarea").val(xhr.responseText)
+            });
+            return;
+        })
+
+        $("#Regerar").click(function () {
+            settings.data = {
+                "grant_type": "refresh_token",
+                "client_id": clientId,
+                "refresh_token": $("#refreshToken").val()
+            }
+
+            $.ajax(settings).done(function (response) {
+                console.log(response);
+                $("#textarea").val(JSON.stringify(response))
+                $("#token").val(response.access_token)
+                $("#refreshToken").val(response.refresh_token)
+            }).fail(function (xhr, status, err) {
+                $("#textarea").val(xhr.responseText)
+            });
+            return;
+        })
+
+        $("#Testar").click(function () {
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": url + "JWT.Client.Api/api/protected",
+                "method": "GET",
+                "headers": {
+                    "content-type": "application/json",
+                    "accept": "application/json",
+                    "authorization": "Bearer " + $("#token").val(),
+                    "cache-control": "no-cache",
+                }
+            }
+
+            $.ajax(settings).done(function (response) {
+                $("#textarea-protected").val(JSON.stringify(response))
+                console.log(response);
+            }).fail(function (xhr, status, err) {
+                if (xhr.status == 401)
+                    $("#textarea-protected").val(xhr.responseText)
+            });
+        })
+    }
+
+    $(document).ready(onload);
+
+</script>
