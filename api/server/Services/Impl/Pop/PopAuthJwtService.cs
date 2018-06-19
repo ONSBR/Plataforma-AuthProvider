@@ -29,7 +29,6 @@ namespace ONS.AuthProvider.Api.Services.Impl.Pop
     {
         private const string ConfigPathUrlPop = "Auth:Pop:Url.Jwt.OAuth";
 
-        private readonly string _urlAuthJwtPop;
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
         private KeyValuePair<string,string>[] _replacesContent;
@@ -147,7 +146,7 @@ namespace ONS.AuthProvider.Api.Services.Impl.Pop
                 if (_logger.IsEnabled(LogLevel.Debug)) {
                     
                     var msg = string.Format(
-                        "Autenticação realizada com sucesso. Data: grant_type={0}, client_id={1}, username={2}, refresh_token={3}." +
+                        "Autenticação no pop realizada com sucesso. Data: grant_type={0}, client_id={1}, username={2}, refresh_token={3}." +
                         "Tempo[{4}ms]", 
                         query["grant_type"], query["client_id"], query["username"], query["refresh_token"],
                         watch.ElapsedMilliseconds
@@ -159,6 +158,7 @@ namespace ONS.AuthProvider.Api.Services.Impl.Pop
             } catch(System.Exception ex) {
                 var msg = string.Format("Erro ao acessar o Pop[url={0}]", url);
                 _logger.LogError(msg, ex);
+                // TODO tratamento exceção
                 throw;
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using ONS.AuthProvider.Api.Services.Impl.Pop;
+using ONS.AuthProvider.Api.Services.Impl.Fake;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -10,26 +11,34 @@ namespace ONS.AuthProvider.Api.Services.Impl
     {
         private const string ConfigAuthFactoryServiceAlias = "Auth:Factory:Service.Alias";
 
-        private readonly IAuthService _popAuthJwtService;
         private readonly IConfiguration _configuration;
+        
+        private readonly IAuthService _popAuthJwtService;
+        private readonly IAuthService _fakeAuthJwtService;
 
-        public AuthServiceFactoryImpl(IConfiguration configuration, ILogger<PopAuthJwtService> logger) 
+        public AuthServiceFactoryImpl(IConfiguration configuration, 
+            ILogger<PopAuthJwtService> loggerPop, 
+            ILogger<FakeAuthJwtService> loggerFake) 
         {
             _configuration = configuration;
-            _popAuthJwtService = new PopAuthJwtService(_configuration, logger);
-            // Implementar opção sem ir no pop
+            
+            _popAuthJwtService = new PopAuthJwtService(_configuration, loggerPop);
+            _fakeAuthJwtService = new FakeAuthJwtService(_configuration, loggerFake);
         }
 
         public IAuthService Get(string clientId) 
         {    
             IAuthService retorno = null;
 
-            // TODO falta o defualt
-            if ("pop".Equals(_getConfigTypeService(clientId))) {
+            var configTypeService = _getConfigTypeService(clientId);
+
+            if ("pop".Equals(configTypeService)) {
                 retorno = _popAuthJwtService;
             }
+            else if ("fake".Equals(configTypeService)) {
+                retorno = _fakeAuthJwtService;
+            }
 
-            // TODO colocar validação quando não encontrado e se utilizou o deault logar aqui
             return retorno;
         }
 

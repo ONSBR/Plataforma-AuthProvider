@@ -15,6 +15,8 @@ using ONS.AuthProvider.Api.Services.Impl.Pop;
 using ONS.AuthProvider.Api.Services.Impl;
 using ONS.AuthProvider.Api.Services;
 
+using ONS.AuthProvider.Api.Exception;
+
 namespace ONS.AuthProvider.Api
 {
     public class Startup
@@ -29,8 +31,14 @@ namespace ONS.AuthProvider.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            
+            var servicesProvider = services.BuildServiceProvider();
+            var loggerError = servicesProvider.GetRequiredService<ILoggerFactory>().CreateLogger<ErrorHandlingFilter>();
+
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(new ErrorHandlingFilter(loggerError));
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
             // Declara todos os serviços injetados.
             services.AddSingleton<IAuthService, PopAuthJwtService>();
             services.AddSingleton<IAuthServiceFactory, AuthServiceFactoryImpl>();

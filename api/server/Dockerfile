@@ -4,4 +4,4 @@ COPY . .
 
 ENV PORT 8088
 
-CMD [ "dotnet", "server/${webAppName}.dll" ]
+CMD [ "dotnet", "published/.dll" ]
