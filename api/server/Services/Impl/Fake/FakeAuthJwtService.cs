@@ -163,8 +163,7 @@ namespace ONS.AuthProvider.Api.Services.Impl.Fake
 
                 _logger.LogError(msg);
 
-                // TODO criar exceção de infra 
-                throw new AuthException("Erro interno de configuração.");
+                throw new AuthException("Configuration internal error.", StatusCodes.Status500InternalServerError);
             }
         }
 
