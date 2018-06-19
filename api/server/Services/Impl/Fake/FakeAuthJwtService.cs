@@ -25,8 +25,6 @@ using System.Collections.Specialized;
 
 using ONS.AuthProvider.Api.Utils.Http;
 
-using Microsoft.AspNetCore.Http;
-
 namespace ONS.AuthProvider.Api.Services.Impl.Fake
 {
     /// <summary>Implementação do serviço de autenticação de forma simulada com tecnologia JWT.</summary>
