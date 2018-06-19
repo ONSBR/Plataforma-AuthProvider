@@ -2,8 +2,10 @@ using System;
 
 namespace ONS.AuthProvider.Api.Exception
 {
+    ///<summary>Exceção relacionada a autenticação da plataforma.</summary>
     public class AuthException: System.Exception 
     {
+        ///<summary>Código de identificação do erro.</summary>
         public int? StatusCode {get;set;}
 
         public AuthException() {}

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ONS.AuthProvider.Api.Exception
 {
-
+    ///<summary>Classe responsável por tratar todas as exceções levantadas no controller.</summary>
     public class ErrorHandlingFilter : ExceptionFilterAttribute
     {
         private readonly ILogger _logger;
@@ -15,6 +15,8 @@ namespace ONS.AuthProvider.Api.Exception
             _logger = logger;
         }
 
+        ///<summary>Trata cada exceção levatanda no controller.</summary>
+        ///<param name="context">Contexto contendo as informações da exceção ocorrida.</param>
         public override void OnException(ExceptionContext context)
         {
             HandleExceptionAsync(context);

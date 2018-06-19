@@ -21,10 +21,8 @@ using ONS.AuthProvider.Api.Utils.Http;
 
 namespace ONS.AuthProvider.Api.Services.Impl.Pop
 {
-    /**
-     * Serviço responsável por realizar as chamadas para autenticação no Pop.
-     * Com a tecnologia JWT é gerado um Token de validade de acesso para uso do client.
-     */
+    /// <summary>Serviço responsável por realizar as chamadas para autenticação no Pop.
+    /// Com a tecnologia JWT é gerado um Token de validade de acesso para uso do client.</summary>
     public class PopAuthJwtService : IAuthService
     {
         private const string ConfigPathUrlPop = "Auth:Pop:Url.Jwt.OAuth";
@@ -55,6 +53,9 @@ namespace ONS.AuthProvider.Api.Services.Impl.Pop
             return client;
         }
 
+        /// <summary>Autenticação do usuário e geração do token de validade, com expiração.</summary>
+        /// <param name="user">Dados do usuário para autenticação.</param>
+        /// <returns>Dados do token de autenticação.</returns>
         public Token Auth(User user)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
@@ -66,6 +67,9 @@ namespace ONS.AuthProvider.Api.Services.Impl.Pop
             return _processAuthPop(query, user.ClientId, user.HostOrigin);
         }
 
+        /// <summary>Token com expiração atualizada, de validade de autenticação.</summary>
+        /// <param name="dataRefresh">Dados para atualização do token.</param>
+        /// <returns>Dados do token atualizado para nova expiração.</returns>
         public Token Refresh(DataRefreshToken dataRefresh) 
         {
             var query = HttpUtility.ParseQueryString(string.Empty);

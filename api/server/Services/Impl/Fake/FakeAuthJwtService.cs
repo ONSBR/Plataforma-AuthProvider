@@ -29,9 +29,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace ONS.AuthProvider.Api.Services.Impl.Fake
 {
-    /**
-     * Serviço responsável por realizar autenticação simulada com tecnologia JWT.
-     */
+    /// <summary>Implementação do serviço de autenticação de forma simulada com tecnologia JWT.</summary>
     public class FakeAuthJwtService : IAuthService
     {
         private const string ConfigFakeJwtUsername = "Auth:Fake:Jwt.Username";
@@ -51,6 +49,9 @@ namespace ONS.AuthProvider.Api.Services.Impl.Fake
             _logger = logger;
         }
 
+        /// <summary>Autenticação do usuário e geração do token de validade, com expiração.</summary>
+        /// <param name="user">Dados do usuário para autenticação.</param>
+        /// <returns>Dados do token de autenticação.</returns>
         public Token Auth(User user)
         {
             var username = _getConfigByClientId(ConfigFakeJwtUsername, user.ClientId);
@@ -69,6 +70,9 @@ namespace ONS.AuthProvider.Api.Services.Impl.Fake
             }
         }
 
+        /// <summary>Token com expiração atualizada, de validade de autenticação.</summary>
+        /// <param name="dataRefresh">Dados para atualização do token.</param>
+        /// <returns>Dados do token atualizado para nova expiração.</returns>
         public Token Refresh(DataRefreshToken dataRefresh) 
         {
             if (_cache.ContainsKey(dataRefresh.RefreshToken)) {

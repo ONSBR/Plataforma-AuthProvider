@@ -18,15 +18,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace ONS.AuthProvider.Api.Controllers
 {
-    /**
-     * Controller para receber a requisição de autenticação para a plataforma ONS.
-     */
+    ///<summary>Controller para receber a requisição de autenticação para a plataforma ONS.</summary>
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
         private readonly ILogger _logger;
 
+        ///<summary>Factory de obtenção de serviços.</summary>
         private readonly IAuthServiceFactory _authServiceFactory;
 
         public AuthController(IAuthServiceFactory authServiceFactory, ILogger<AuthController> logger) {
@@ -35,16 +34,14 @@ namespace ONS.AuthProvider.Api.Controllers
         }
 
         [HttpGet]
-        [Route("ToVivo")]
+        [Route("tovivo")]
         public ActionResult<string> ToVivo()
         {
             return "Ok";
         }
 
-        /**
-         * Método responsável por fazer a autenticação e geração no Token de validação dos dados de autenticação.
-         * Esse token possui uma validade.
-         */
+        /// <summary>Método responsável por fazer a autenticação e geração no Token de validação dos dados de autenticação.
+        /// Esse token possui uma validade.</summary>
         [HttpPost]
         [Route("token")]
         public ActionResult<Token> GenerateToken()
@@ -89,10 +86,8 @@ namespace ONS.AuthProvider.Api.Controllers
             return result;
         }
 
-        /**
-         * Método responsável por fazer a atualização do token de atualização do cliente.
-         * Esse token possui uma validade.
-         */
+        /// <summary>Método responsável por fazer a atualização do token de atualização do cliente.
+        /// Esse token possui uma validade.</summary>
         [HttpPost]
         [Route("refresh")]
         public ActionResult<Token> RefreshToken()
@@ -139,6 +134,12 @@ namespace ONS.AuthProvider.Api.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Realiza a transformação dos dados obtidos do request. 
+        /// Pode obter por json ou formulário, de acordo com o content-type. 
+        /// </summary>
+        /// <param name="actionAlternativeObj">Executa código de como deve ser feita a 
+        /// transformação para receber os dados de formulário.</param>
         private T _parseInputContent<T>(Func<T> actionAlternativeObj)
         {
             T retorno = default(T);

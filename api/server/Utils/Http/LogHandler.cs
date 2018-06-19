@@ -9,6 +9,8 @@ using System.Text.RegularExpressions;
 
 namespace ONS.AuthProvider.Api.Utils.Http
 {
+    ///<summary>Classe responsável por registrar dados de requisições, executada pelo client Http.
+    /// São registrados os dados de requisição e resposta da solicitação.</summary>
     public class LogHandler : DelegatingHandler
     {
         private readonly ILogger _logger;

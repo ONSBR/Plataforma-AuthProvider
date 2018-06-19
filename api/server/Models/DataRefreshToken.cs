@@ -6,17 +6,21 @@ using System.Threading.Tasks;
 
 using ONS.AuthProvider.Api.Exception;
 
-using Microsoft.AspNetCore.Http;
-
 namespace ONS.AuthProvider.Api.Models
 {
+    ///<summary>Dados para geração de um novo token atualizado, com nova expiração.</summary>
     public class DataRefreshToken 
     {
+        /// <summary>Identificador para atualização do token, gerando novo token de expiração.</summary>
         public string RefreshToken { get; set; }
+
+        /// <summary>Identificador do client que está fazendo a autenticação.</summary>
         public string ClientId { get; set; }
 
+        /// <summary>Indica a origem da solicitação de autenticação.</summary>
         public string HostOrigin { get; set; }
  
+        /// <summary>Valida os dados da entidade.</summary>
         public void Validate() {
 
             var msgInvalid = new StringBuilder();
@@ -28,7 +32,7 @@ namespace ONS.AuthProvider.Api.Models
             }
             
             if (msgInvalid.Length > 0) {
-                throw new AuthException(msgInvalid.ToString(), StatusCodes.Status400BadRequest);
+                throw new AuthException(msgInvalid.ToString());
             }
         }
 
