@@ -8,11 +8,11 @@ using ONS.AuthProvider.Api.Models;
 using ONS.AuthProvider.Api.Services;
 using ONS.AuthProvider.Api.Exception;
 using Microsoft.IdentityModel.Tokens;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Security.Principal;
+using Microsoft.AspNetCore.Http;
 
 using System.Net;
 using System.Net.Http;

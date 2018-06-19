@@ -19,6 +19,8 @@ using System.Collections.Specialized;
 
 using ONS.AuthProvider.Api.Utils.Http;
 
+using Microsoft.AspNetCore.Http;
+
 namespace ONS.AuthProvider.Api.Services.Impl.Pop
 {
     /// <summary>Serviço responsável por realizar as chamadas para autenticação no Pop.
