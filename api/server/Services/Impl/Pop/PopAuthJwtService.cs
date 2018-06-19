@@ -28,6 +28,7 @@ namespace ONS.AuthProvider.Api.Services.Impl.Pop
     public class PopAuthJwtService : IAuthService
     {
         private const string ConfigPathUrlPop = "Auth:Pop:Url.Jwt.OAuth";
+        private const string ConfigHeaderRefererDefault = "Auth:Pop:Header.Referer.Default";
 
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
@@ -124,6 +125,10 @@ namespace ONS.AuthProvider.Api.Services.Impl.Pop
                 using (HttpClient client = CreateHttpClient())
                 {
                     client.BaseAddress = new Uri(url);
+
+                    if (string.IsNullOrEmpty(hostOrigin)) {
+                        hostOrigin = _configuration[ConfigHeaderRefererDefault];
+                    }
 
                     if (!string.IsNullOrEmpty(hostOrigin)) {
                         client.DefaultRequestHeaders.Add("Referer", hostOrigin);
