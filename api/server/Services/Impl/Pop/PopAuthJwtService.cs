@@ -166,10 +166,26 @@ namespace ONS.AuthProvider.Api.Services.Impl.Pop
                 }
 
             } catch(System.Exception ex) {
+                
                 var msg = string.Format("Erro ao acessar o Pop[url={0}]", url);
                 _logger.LogError(msg, ex);
-                // TODO tratamento exceção
-                throw;
+                
+                string errorMsg = "Unexpect error";
+                int statusCode = StatusCodes.Status500InternalServerError;
+
+                // Deserialize the updated product from the response body.
+                if (response != null) {
+                    var contentString = response.Content.ReadAsStringAsync().Result;
+                    var jsobj = (JObject)JsonConvert.DeserializeObject(contentString);
+
+                    var errorResp = jsobj.Value<string>("error");
+                    if (!string.IsNullOrEmpty(errorResp)) {
+                        errorMsg = errorResp;
+                    }
+                    statusCode = (int)response.StatusCode;
+                }
+
+                throw new AuthException(errorMsg, ex, statusCode);
             }
         }
         
