@@ -40,7 +40,6 @@ namespace ONS.AuthProvider.Api
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             // Declara todos os serviços injetados.
-            services.AddSingleton<IAuthService, PopAuthJwtService>();
             services.AddSingleton<IAuthServiceFactory, AuthServiceFactoryImpl>();
             
         }

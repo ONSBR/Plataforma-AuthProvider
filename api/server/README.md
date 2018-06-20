@@ -17,10 +17,20 @@ Para executar as aplicações com sucesso você precisa instalar as seguintes fe
 * [Docker](https://www.docker.com/)
 
 
-#### Serviços
+#### Url de Serviços
 
 Url de autenticação: https://localhost:5001/api/auth/token
 Url de atualização da expiração do token: https://localhost:5001/api/auth/refresh
+
+
+#### Compilação 
+
+PS > dotnet build 
+
+
+#### Execução 
+
+PS > dotnet .\bin\Debug\netcoreapp2.1\ONS.AuthProvider.Api.dll  
 
 
 #### Configuração Factory

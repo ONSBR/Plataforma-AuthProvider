@@ -100,7 +100,7 @@ namespace ONS.AuthProvider.Api.Services.Impl.Fake
             DateTime dataExpiracao = dataCriacao +
                 TimeSpan.FromSeconds( Convert.ToDouble(_getConfig(ConfigFakeJwtExpirationSeconds) ));
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_getConfig(ConfigFakeJwtKey)));
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_getConfig(ConfigFakeJwtKey)));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var handler = new JwtSecurityTokenHandler();

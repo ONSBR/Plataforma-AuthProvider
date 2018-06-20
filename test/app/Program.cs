@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace ONS.AuthProvider.Api
+namespace ONS.AuthProvider.AppTest
 {
     public class Program
     {
         public static void Main(string[] args)
         {
             var envport = System.Environment.GetEnvironmentVariable("PORT");
-			
+            
             if (args.Length > 0) {
                 envport = args[0];
             }
