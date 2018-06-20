@@ -35,7 +35,8 @@ namespace ONS.AuthProvider.Api.Services.Impl.Fake
         private const string ConfigFakeJwtKey = "Auth:Fake:Jwt.Token:Key";
         private const string ConfigFakeJwtAudience = "Auth:Fake:Jwt.Token:Audience";
         private const string ConfigFakeJwtIssuer = "Auth:Fake:Jwt.Token:Issuer";
-        private const string ConfigFakeJwtExpirationSeconds = "Auth:Fake:Jwt.Token:Expiration.Seconds";
+        private const string ConfigFakeJwtExpiration = "Auth:Fake:Jwt.Token:Expiration.Minutes";
+        private const string ConfigFakeJwtRole = "Auth:Fake:Jwt.Token:Role";
 
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
@@ -88,26 +89,39 @@ namespace ONS.AuthProvider.Api.Services.Impl.Fake
 
         private Token _generateToken(string username) {
             
+            var issuer = _getConfig(ConfigFakeJwtIssuer);
+            var configKey = _getConfig(ConfigFakeJwtKey);
+            var audience = _getConfig(ConfigFakeJwtAudience);
+            var expiration = Convert.ToDouble(_getConfig(ConfigFakeJwtExpiration));
+            var role = _getConfig(ConfigFakeJwtRole);
+
+            if (_logger.IsEnabled(LogLevel.Debug)) {
+                _logger.LogDebug(string.Format("Geração de Token: {0}, {1}, {2}, {3}",
+                    issuer, audience, configKey, expiration
+                ));
+            }
+
             ClaimsIdentity identity = new ClaimsIdentity(
                 new GenericIdentity(username, "Login"),
                 new[] {
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
-                    new Claim(JwtRegisteredClaimNames.UniqueName, username)
+                    new Claim(JwtRegisteredClaimNames.UniqueName, username),
+                    new Claim("role", role)
                 }
             );
 
             DateTime dataCriacao = DateTime.Now;
             DateTime dataExpiracao = dataCriacao +
-                TimeSpan.FromSeconds( Convert.ToDouble(_getConfig(ConfigFakeJwtExpirationSeconds) ));
+                TimeSpan.FromMinutes( expiration );
 
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_getConfig(ConfigFakeJwtKey)));
+            var key = new SymmetricSecurityKey(Convert.FromBase64String(configKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
             {
-                Issuer = _getConfig(ConfigFakeJwtIssuer),
-                Audience = _getConfig(ConfigFakeJwtAudience),
+                Issuer = issuer,
+                Audience = audience,
                 SigningCredentials = creds,
                 Subject = identity,
                 NotBefore = dataCriacao,

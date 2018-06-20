@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace JWT.Client.Api.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Servico")]
     [Route("api/protected")]
     [ApiController]
     public class ProtectedController : ControllerBase

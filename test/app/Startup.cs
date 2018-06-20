@@ -20,6 +20,10 @@ namespace ONS.AuthProvider.AppTest
 {
     public class Startup
     {
+        private const string ConfigPathAuthIssuer = "Auth:Validate:Issuer";
+        private const string ConfigPathAuthAudience = "Auth:Validate:Audience";
+        private const string ConfigPathAuthKey = "Auth:Validate:Key";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -30,7 +34,14 @@ namespace ONS.AuthProvider.AppTest
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            AuthConfigurationValidate.Configure(services, Configuration);
+            var authOptions = new AuthValidateOptions{
+                ValidIssuer = Configuration[ConfigPathAuthIssuer],
+                ValidAudience = Configuration[ConfigPathAuthAudience],
+                ValidKey = Configuration[ConfigPathAuthKey]
+            };
+            AuthConfigurationValidate.Configure(services, authOptions);
+
+            Console.WriteLine("##### " + authOptions);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -46,9 +57,11 @@ namespace ONS.AuthProvider.AppTest
             {
                 app.UseHsts();
             }
-
-            app.UseHttpsRedirection();
+            // OBS: importante que fique antes do UseMvc
+            app.UseAuthentication();
+            //app.UseHttpsRedirection();
             app.UseMvc();
+            
         }
 
     }
