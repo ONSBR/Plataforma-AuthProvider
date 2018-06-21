@@ -57,9 +57,9 @@ namespace ONS.AuthProvider.Api.Controllers
 
             User user = _parseInputContent(() => {
                 var _usr = new User();
-                _usr.Username = Request.Form["Username"];
-                _usr.Password = Request.Form["Password"];
-                _usr.ClientId = Request.Form["ClientId"];
+                _usr.Username = Request.Form["username"];
+                _usr.Password = Request.Form["password"];
+                _usr.ClientId = Request.Form["client_id"];
                 return _usr;
             });
 
@@ -103,8 +103,8 @@ namespace ONS.AuthProvider.Api.Controllers
             
             DataRefreshToken dataRefresh = _parseInputContent(() => {
                 var _rfs = new DataRefreshToken();
-                _rfs.ClientId = Request.Form["ClientId"];
-                _rfs.RefreshToken = Request.Form["RefreshToken"];
+                _rfs.ClientId = Request.Form["client_id"];
+                _rfs.RefreshToken = Request.Form["refresh_token"];
                 return _rfs;
             });
 

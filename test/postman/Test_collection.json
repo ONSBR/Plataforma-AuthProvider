@@ -1,0 +1,78 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Test - Auth",
+		"_postman_id": "505d474d-f1a7-40ff-7292-6e8d2151d005",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth Token",
+			"request": {
+				"url": "http://localhost:8082/api/auth/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+                "body": {
+                    "mode": "raw",
+					"raw": "{\n\t\"username\": \"user\",\n\t\"password\": \"teste\",\n\t\"client_id\": \"INTANEEL\"\n}"
+                },
+				"description": ""
+			},
+			"response": []
+        },
+        {
+			"name": "Refresh Token",
+			"request": {
+				"url": "http://localhost:8082/api/auth/refresh",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+                "body": {
+                    "mode": "raw",
+					"raw": "{\n\t\"refresh_token\": \"ayyK23J0Fey/XINmCuiO9knbL4rtnpKK5QC06FO7NGk=\",\n\t\"client_id\": \"INTANEEL\"\n}"
+                },
+				"description": ""
+			},
+			"response": []
+        },
+		{
+			"name": "Test Fake Protected",
+			"request": {
+				"url": "http://localhost:8083/api/protected",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lcyBib25kIiwianRpIjoiZDEwZTlmMGEtYzhlYy00NWRhLWJmNzQtODAyZjhkOGNiYTlhIiwiTWVtYmVyc2hpcElkIjoiMTExIiwiZXhwIjoxNTA0ODc3NzcxLCJpc3MiOiJGaXZlci5TZWN1cml0eS5CZWFyZXIiLCJhdWQiOiJGaXZlci5TZWN1cml0eS5CZWFyZXIifQ.Lvoc1J56ctvsTJOHJkP7-X_EBYDq1exLuzdcYIF5Yso",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Test Fake Unprotected",
+			"request": {
+				"url": "http://localhost:8083/api/unprotected",
+				"method": "GET",
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

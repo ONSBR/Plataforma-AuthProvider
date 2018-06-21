@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 using ONS.AuthProvider.Api.Exception;
 
@@ -12,9 +13,11 @@ namespace ONS.AuthProvider.Api.Models
     public class DataRefreshToken 
     {
         /// <summary>Identificador para atualização do token, gerando novo token de expiração.</summary>
+        [JsonProperty("refresh_token")]
         public string RefreshToken { get; set; }
 
         /// <summary>Identificador do client que está fazendo a autenticação.</summary>
+        [JsonProperty("client_id")]
         public string ClientId { get; set; }
 
         /// <summary>Indica a origem da solicitação de autenticação.</summary>

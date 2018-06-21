@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 using ONS.AuthProvider.Api.Exception;
 
@@ -12,12 +13,15 @@ namespace ONS.AuthProvider.Api.Models
     public class User 
     {
         /// <summary>Nome do usuário de autenticação.</summary>
+        [JsonProperty("username")]
         public string Username { get; set; }
 
         /// <summary>Senha do usuário de autenticação.</summary>
+        [JsonProperty("password")]
         public string Password { get; set; }
         
         /// <summary>Identificador do client que está fazendo a autenticação.</summary>
+        [JsonProperty("client_id")]
         public string ClientId { get; set; }
 
         /// <summary>Indica a origem da solicitação de autenticação.</summary>
