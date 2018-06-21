@@ -84,7 +84,7 @@ Configuração do Provider de autenticação Fake. As configurações são para 
       }
   }
 
-As configurações de Jwt.Username e Jwt.Password, são dados de autenticação. Jwt.Token é para geração do Token de autenticação. A configuração de senha deverá ser criptografada em SHA256, neste caso, está co valor: "teste".
+As configurações de Jwt.Username e Jwt.Password, são dados de autenticação. Jwt.Token é para geração do Token de autenticação. A configuração de senha deverá ser criptografada em SHA256, neste caso, está com valor: "teste".
 
 
 #### Exemplo de requisição de acesso aos serviços
