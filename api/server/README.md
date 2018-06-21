@@ -79,7 +79,7 @@ Configuração do Provider de autenticação Fake. As configurações são para 
           "Key": "veryVerySecretKey",
           "Audience": "ExemploAudience",
           "Issuer": "ExemploIssuer",
-          "Expiration.Seconds": 120
+          "Expiration.Minutes": 2
         }
       }
   }
