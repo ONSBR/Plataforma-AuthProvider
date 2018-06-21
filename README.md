@@ -51,3 +51,8 @@ Execução de testes no postman:
         4. Obter o novo Token da resposta, o "access_token"
         5. Executar: [POST] Test Fake Protected        
 
+
+#### Página de teste
+
+No projeto de teste web está disponível uma página para acessar o servidor para geração de chave também.
+Projeto: test > web
