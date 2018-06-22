@@ -4,69 +4,71 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OAuth.AspNet.AuthServer;
+using Microsoft.AspNetCore.Authentication;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication;
 using ONS.AuthProvider.OAuth.Providers;
 using ONS.AuthProvider.OAuth.Providers.Pop;
 using ONS.AuthProvider.OAuth.Providers.Fake;
+using ONS.AuthProvider.OAuth.Util;
 
 namespace ONS.AuthProvider.OAuth
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        private const string ConfigAuthAdapterUse = "Auth:Adapter:Use";
 
-        public IConfiguration Configuration { get; }
+        public Startup(IHostingEnvironment env) {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+            AuthConfiguration.Configuration = builder.Build();
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, 
+            ILoggerFactory loggerFactory, ILogger<Startup> logger)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                app.UseHsts();
-            }
 
-            var configAdapterUse = "pop";
-            var configTokenEndpointPath = "/oauth2/token";
-            var configAuthorizeEndpointPath = "/authi";
-            var configAllowInsecureHttp = true;
+            loggerFactory.AddConsole(AuthConfiguration.Configuration.GetSection("Logging"));
+            loggerFactory.AddDebug();
 
-            AuthorizationAdapterFactory.Add("pop", new PopAuthorizationAdapter(null, null));
-
+            AuthConfiguration.Logger = loggerFactory.CreateLogger<AuthConfiguration>();
+            
+            AuthorizationAdapterFactory.Add("pop", new PopAuthorizationAdapter(
+                loggerFactory.CreateLogger<PopAuthorizationAdapter>()));
+            AuthorizationAdapterFactory.Add("fake", new FakeAuthorizationAdapter(
+                loggerFactory.CreateLogger<FakeAuthorizationAdapter>()));
+            
             // Setup Authorization Server
-            app.UseOAuthAuthorizationServer(
-                options => {
-                    options.AuthorizeEndpointPath = new PathString(configAuthorizeEndpointPath);
-                    options.TokenEndpointPath = new PathString(configTokenEndpointPath);
-                    options.AllowInsecureHttp = configAllowInsecureHttp;
-                    options.ApplicationCanDisplayErrors = true;
-                    //options.TokenEndpointPath = new PathString(configTokenEndpointPath);
-                    //AuthorizationAdapterFactory.Get(configAdapterUse).SetConfiguration(options);       
-                }
-            );
+            var configAdapterUse = AuthConfiguration.Get(ConfigAuthAdapterUse);
+
+            app.UseOAuthAuthorizationServer(options => {
+                AuthorizationAdapterFactory.Get(configAdapterUse).SetConfiguration(options);
+            });
 
             app.UseMvc();
+
+            logger.LogDebug("Sistema inicializado com sucesso.");
         }
     }
 }

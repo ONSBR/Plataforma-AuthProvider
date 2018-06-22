@@ -2,33 +2,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OAuth.AspNet.AuthServer;
+using Microsoft.AspNetCore.Builder;
 
-using Microsoft.AspNetCore.Authentication;
-using OAuth.AspNet.AuthServer;
+//using Microsoft.AspNetCore.Authentication;
+
 using ONS.AuthProvider.OAuth.Providers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace ONS.AuthProvider.OAuth.Providers.Pop
 {
-
     public class PopAuthorizationAdapter: IAuthorizationAdapter 
     {    
-        
+        private readonly ILogger _logger;
 
-        public PopAuthorizationAdapter(IConfiguration configuration, ILogger logger) {
-
+        public PopAuthorizationAdapter(ILogger logger) {
+            _logger = logger;
         }
 
         public void SetConfiguration(OAuthAuthorizationServerOptions options) 
         {
             // TODO
-            
-            
-
-            
-            /*options.ApplicationCanDisplayErrors = true;
-            options.AllowInsecureHttp = configAllowInsecureHttp;
+            /* 
             options.Provider = new OAuthAuthorizationServerProvider
             {
                 OnValidateClientRedirectUri = ValidateClientRedirectUri,
@@ -45,7 +40,7 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
             {
                 OnCreate = CreateRefreshToken,
                 OnReceive = ReceiveRefreshToken,
-            };*/                
+            };  */              
         }
     }
 

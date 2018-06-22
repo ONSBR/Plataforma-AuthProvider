@@ -3,38 +3,56 @@ using System.Collections.Generic;
 using System.Linq;
 using OAuth.AspNet.AuthServer;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
-using OAuth.AspNet.AuthServer;
 using ONS.AuthProvider.OAuth.Providers;
+using ONS.AuthProvider.OAuth.Util;
 
 namespace ONS.AuthProvider.OAuth.Providers.Fake
 {
 
-    public class FakeAuthorizationAdapter: IAuthorizationAdapter {
-        
+    public class FakeAuthorizationAdapter: IAuthorizationAdapter 
+    {   
+        private const string KeyConfigAuthorizePath = "Auth:Adapter:Providers:fake:AuthorizeEndpointPath";
+        private const string KeyConfigTokenPath = "Auth:Adapter:Providers:fake:TokenEndpointPath";
+        private const string KeyConfigAllowInsecureHttp = "Auth:Adapter:Providers:fake:AllowInsecureHttp";
+
+        private readonly ILogger _logger;
+
+        public FakeAuthorizationAdapter(ILogger logger) {
+            _logger = logger;
+        }
+
         public void SetConfiguration(OAuthAuthorizationServerOptions options) {
-            
-            options.AuthorizeEndpointPath = new PathString("");
-            options.TokenEndpointPath = new PathString("");
+
+            var tokenEndpointPath = AuthConfiguration.Get(KeyConfigTokenPath);
+            var authorizeEndpointPath = AuthConfiguration.Get(KeyConfigAuthorizePath);
+            var allowInsecureHttp = "true".Equals(AuthConfiguration.Get(KeyConfigAllowInsecureHttp));
+Console.WriteLine("tokenEndpointPath: " + tokenEndpointPath + ", authorizeEndpointPath: " + authorizeEndpointPath);
+            options.AuthorizeEndpointPath = new PathString(authorizeEndpointPath);
+            options.TokenEndpointPath = new PathString(tokenEndpointPath);
             options.ApplicationCanDisplayErrors = true;                       
-            options.AllowInsecureHttp = true;
-            /*options.Provider = new OAuthAuthorizationServerProvider
+            options.AllowInsecureHttp = allowInsecureHttp;
+
+            var provider = new FakeAuthorizationProvider();
+
+            options.Provider = new OAuthAuthorizationServerProvider
             {
-                OnValidateClientRedirectUri = ValidateClientRedirectUri,
-                OnValidateClientAuthentication = ValidateClientAuthentication,
-                OnGrantResourceOwnerCredentials = GrantResourceOwnerCredentials,
-                OnGrantClientCredentials = GrantClientCredetails
+                OnValidateClientRedirectUri = provider.ValidateClientRedirectUri,
+                OnValidateClientAuthentication = provider.ValidateClientAuthentication,
+                OnGrantResourceOwnerCredentials = provider.GrantResourceOwnerCredentials,
+                OnGrantClientCredentials = provider.GrantClientCredetails
             };
             options.AuthorizationCodeProvider = new AuthenticationTokenProvider
             {
-                OnCreate = CreateAuthenticationCode,
-                OnReceive = ReceiveAuthenticationCode,
+                OnCreate = provider.CreateAuthenticationCode,
+                OnReceive = provider.ReceiveAuthenticationCode,
             };
             options.RefreshTokenProvider = new AuthenticationTokenProvider
             {
-                OnCreate = CreateRefreshToken,
-                OnReceive = ReceiveRefreshToken,
-            };*/                
+                OnCreate = provider.CreateRefreshToken,
+                OnReceive = provider.ReceiveRefreshToken,
+            };     
         }
     }
 

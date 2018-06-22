@@ -7,19 +7,20 @@ using Microsoft.AspNetCore.Mvc;
 namespace ONS.AuthProvider.OAuth.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    public class ValuesController : ControllerBase
+    //[ApiController]
+    public class ValuesController : Controller
     {
         // GET api/values
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public IEnumerable<string> Get()
         {
+            //return new ContentResult("");
             return new string[] { "value1", "value2" };
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        public string Get(int id)
         {
             return "value";
         }
