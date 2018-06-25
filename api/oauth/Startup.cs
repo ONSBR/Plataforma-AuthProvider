@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OAuth.AspNet.AuthServer;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Caching.Memory;
 
 using Microsoft.AspNetCore.Http;
 using ONS.AuthProvider.OAuth.Providers;
@@ -22,9 +23,8 @@ namespace ONS.AuthProvider.OAuth
 {
     public class Startup
     {
-        private const string ConfigAuthAdapterUse = "Auth:Adapter:Use";
-
         public Startup(IHostingEnvironment env) {
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -36,12 +36,13 @@ namespace ONS.AuthProvider.OAuth
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMemoryCache();
             services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, 
-            ILoggerFactory loggerFactory, ILogger<Startup> logger)
+            ILoggerFactory loggerFactory, ILogger<Startup> logger, IMemoryCache memoryCache)
         {
 
             if (env.IsDevelopment())
@@ -51,24 +52,24 @@ namespace ONS.AuthProvider.OAuth
 
             loggerFactory.AddConsole(AuthConfiguration.Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
-            AuthConfiguration.Logger = loggerFactory.CreateLogger<AuthConfiguration>();
             
-            AuthorizationAdapterFactory.Add("pop", new PopAuthorizationAdapter(
-                loggerFactory.CreateLogger<PopAuthorizationAdapter>()));
-            AuthorizationAdapterFactory.Add("fake", new FakeAuthorizationAdapter(
-                loggerFactory.CreateLogger<FakeAuthorizationAdapter>()));
+            _configureAuthProvider(app, loggerFactory, logger, memoryCache);
             
-            // Setup Authorization Server
-            var configAdapterUse = AuthConfiguration.Get(ConfigAuthAdapterUse);
-
-            app.UseOAuthAuthorizationServer(options => {
-                AuthorizationAdapterFactory.Get(configAdapterUse).SetConfiguration(options);
-            });
-
             app.UseMvc();
 
             logger.LogDebug("Sistema inicializado com sucesso.");
+        }
+
+        private void _configureAuthProvider(IApplicationBuilder app, ILoggerFactory loggerFactory, 
+            ILogger<Startup> logger, IMemoryCache memoryCache) 
+        { 
+            AuthLoggerFactory.LoggerFactory = loggerFactory;
+
+            AuthConfiguration.Logger = loggerFactory.CreateLogger<AuthConfiguration>();
+    
+            CacheManager.Init(memoryCache);
+
+            AuthorizationAdapterFactory.Use().ConfigureApp(app);
         }
     }
 }

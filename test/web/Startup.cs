@@ -9,11 +9,16 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ONS.AuthProvider.Validator;
 
 namespace ONS.AuthProvider.Test.Web
 {
     public class Startup
     {
+        private const string ConfigPathAuthIssuer = "Auth:Validate:Issuer";
+        private const string ConfigPathAuthAudience = "Auth:Validate:Audience";
+        private const string ConfigPathAuthKey = "Auth:Validate:Key";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -31,6 +36,13 @@ namespace ONS.AuthProvider.Test.Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            var authOptions = new AuthValidateOptions{
+                ValidIssuer = Configuration[ConfigPathAuthIssuer],
+                ValidAudience = Configuration[ConfigPathAuthAudience],
+                ValidKey = Configuration[ConfigPathAuthKey]
+            };
+            AuthConfigurationValidate.Configure(services, authOptions);
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
@@ -47,9 +59,10 @@ namespace ONS.AuthProvider.Test.Web
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {

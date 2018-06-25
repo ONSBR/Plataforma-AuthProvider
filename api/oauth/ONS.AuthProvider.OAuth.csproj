@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <!--<PackageReference Include="Microsoft.AspNetCore" version="1.1.0" />-->
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.1" />
     <PackageReference Include="OAuth.AspNet.AuthServer" version="1.0.0" />
     <!--<PackageReference Include="Microsoft.AspNetCore.Mvc" version="1.1.0" />-->
     <PackageReference Include="Microsoft.AspNetCore.Authentication" version="1.1.2" />

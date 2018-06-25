@@ -12,9 +12,18 @@
 
             <!-- Text input-->
             <div class="form-group">
+                <label class="col-md-4 control-label" for="login">Url</label>
+                <div class="col-md-4">
+                    <input id="url" name="url" type="text" placeholder="Url" class="form-control input-md" value="http://localhost:8085/OAuth/Token">
+                    https://poptst.ons.org.br/ons.pop.federation/oauth2/token
+                </div>
+            </div>
+
+            <!-- Text input-->
+            <div class="form-group">
                 <label class="col-md-4 control-label" for="login">Login</label>
                 <div class="col-md-4">
-                    <input id="login" name="login" type="text" placeholder="Login" class="form-control input-md" value="ONS\lucilio.pitang">
+                    <input id="login" name="login" type="text" placeholder="Login" class="form-control input-md" value="ONS\user.pitang">
                 </div>
             </div>
 
@@ -22,7 +31,15 @@
             <div class="form-group">
                 <label class="col-md-4 control-label" for="senha">Senha</label>
                 <div class="col-md-4">
-                    <input id="senha" name="senha" type="password" placeholder="Senha" class="form-control input-md" value="abc@678954321">
+                    <input id="senha" name="senha" type="password" placeholder="Senha" class="form-control input-md" value="teste">
+                </div>
+            </div>
+
+            <!-- Text input-->
+            <div class="form-group">
+                <label class="col-md-4 control-label" for="login">Client ID</label>
+                <div class="col-md-4">
+                    <input id="client_id" name="client_id" type="text" placeholder="ClientId" class="form-control input-md" value="INTANEEL">
                 </div>
             </div>
 
@@ -86,12 +103,12 @@
 <script type="text/javascript">
 
     function onload() {
-        var clientId = "INTANEEL";
+        var clientId = "";
         var url = "http://local.ons.org.br/";
         var settings = {
             "async": true,
             "crossDomain": true,
-            "url": "https://poptst.ons.org.br/ons.pop.federation/oauth2/token",
+            "url": url,
             "method": "POST",
             "headers": {
                 "content-type": "application/x-www-form-urlencoded",
@@ -101,11 +118,12 @@
     
         $("#enviar").click(function () {
             
+            settings.url = $("#url").val();
             settings.data = {
                 "username": $("#login").val(),
                 "password": $("#senha").val(),
                 "grant_type": "password",
-                "client_id": clientId
+                "client_id": $("#client_id").val()
             }
 
             console.log(settings);
@@ -121,9 +139,11 @@
         })
 
         $("#Regerar").click(function () {
+
+            settings.url = $("#url").val();
             settings.data = {
                 "grant_type": "refresh_token",
-                "client_id": clientId,
+                "client_id": $("#client_id").val(),
                 "refresh_token": $("#refreshToken").val()
             }
 
@@ -142,7 +162,7 @@
             var settings = {
                 "async": true,
                 "crossDomain": true,
-                "url": url + "JWT.Client.Api/api/protected",
+                "url": location.href + "api/protected",
                 "method": "GET",
                 "headers": {
                     "content-type": "application/json",

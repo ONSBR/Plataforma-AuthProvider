@@ -41,8 +41,6 @@ namespace ONS.AuthProvider.AppTest
             };
             AuthConfigurationValidate.Configure(services, authOptions);
 
-            Console.WriteLine("##### " + authOptions);
-
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
@@ -57,9 +55,10 @@ namespace ONS.AuthProvider.AppTest
             {
                 app.UseHsts();
             }
+            
             // OBS: importante que fique antes do UseMvc
             app.UseAuthentication();
-            //app.UseHttpsRedirection();
+            
             app.UseMvc();
             
         }

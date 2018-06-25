@@ -10,7 +10,7 @@
 		{
 			"name": "Auth Token",
 			"request": {
-				"url": "http://localhost:8082/api/auth/token",
+				"url": "http://localhost:8085/OAuth/Token",
 				"method": "POST",
 				"header": [
 					{
@@ -21,7 +21,7 @@
 				],
                 "body": {
                     "mode": "raw",
-					"raw": "{\n\t\"username\": \"user\",\n\t\"password\": \"teste\",\n\t\"client_id\": \"INTANEEL\"\n}"
+					"raw": "{\n\t\"username\": \"user\",\n\t\"password\": \"teste\",\n\t\"client_id\": \"INTANEEL\",\n\t\"grant_type\": \"password\"\n}"
                 },
 				"description": ""
 			},
@@ -30,7 +30,7 @@
         {
 			"name": "Refresh Token",
 			"request": {
-				"url": "http://localhost:8082/api/auth/refresh",
+				"url": "http://localhost:8085/OAuth/Token",
 				"method": "POST",
 				"header": [
 					{
@@ -41,14 +41,14 @@
 				],
                 "body": {
                     "mode": "raw",
-					"raw": "{\n\t\"refresh_token\": \"ayyK23J0Fey/XINmCuiO9knbL4rtnpKK5QC06FO7NGk=\",\n\t\"client_id\": \"INTANEEL\"\n}"
+					"raw": "{\n\t\"refresh_token\": \"ayyK23J0Fey/XINmCuiO9knbL4rtnpKK5QC06FO7NGk=\",\n\t\"client_id\": \"INTANEEL\",\n\t\"grant_type\": \"refresh_token\"\n}"
                 },
 				"description": ""
 			},
 			"response": []
         },
 		{
-			"name": "Test Fake Protected",
+			"name": "Test Protected",
 			"request": {
 				"url": "http://localhost:8083/api/protected",
 				"method": "GET",
@@ -65,7 +65,7 @@
 			"response": []
 		},
 		{
-			"name": "Test Fake Unprotected",
+			"name": "Test Unprotected",
 			"request": {
 				"url": "http://localhost:8083/api/unprotected",
 				"method": "GET",
