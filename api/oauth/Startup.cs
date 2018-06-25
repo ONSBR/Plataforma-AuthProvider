@@ -71,5 +71,21 @@ namespace ONS.AuthProvider.OAuth
 
             AuthorizationAdapterFactory.Use().ConfigureApp(app);
         }
+
+        private void _configureTempDir(ILogger<Startup> logger) {
+            var dirTemp = System.Environment.GetEnvironmentVariable("Temp");
+
+            if (string.IsNullOrEmpty(ditTemp)) {
+
+                logger.LogWarning("Não encontrada variável de ambiente, para pasta temporária. ENV [Temp].");
+
+                dirTemp = AuthConfiguration.Get("Auth:Server:TempDir");
+
+                System.Environment.SetEnvironmentVariable("Temp", dirTemp);
+
+                logger.LogWarning(string.Format("Será utilizada configuração" +
+                 " default: Auth:Server:TempDir={0}", dirTemp);                
+            }
+        }
     }
 }
