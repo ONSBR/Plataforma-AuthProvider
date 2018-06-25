@@ -9,20 +9,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!--<PackageReference Include="Microsoft.AspNetCore" version="1.1.0" />-->
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.1" />
     <PackageReference Include="OAuth.AspNet.AuthServer" version="1.0.0" />
-    <!--<PackageReference Include="Microsoft.AspNetCore.Mvc" version="1.1.0" />-->
     <PackageReference Include="Microsoft.AspNetCore.Authentication" version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="1.1.2" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
 
-
-    <!--<PackageReference Include="Microsoft.AspNetCore" version="1.1.0" />-->
-    <!--<PackageReference Include="Microsoft.AspNetCore.Mvc" version="1.1.0" />-->
-
-
-    <PackageReference Include="jose-jwt" Version="2.4.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="1.1.2" />
