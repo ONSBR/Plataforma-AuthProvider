@@ -27,10 +27,32 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
         private readonly ILogger _logger;
         private readonly JwtToken _configToken;
 
+        // Configuração de RSA
+        private readonly JwtHeader _rsaJwtHeader;
+        private readonly string _rsaRawHeader;
+        private readonly SigningCredentials _rsaSigningCredentials;
+        private readonly SecurityKey _popSecurityKey;
+
         public PopAuthenticationTokenProvider(JwtToken configToken): base() {
             _logger = AuthLoggerFactory.Get<PopAuthenticationTokenProvider>();
             _configToken = configToken;
             OnCreate = CreateAuthenticationCode;
+
+            if (_configToken.UseRsa) {
+                
+                using(RSA privateRsa = RSA.Create())
+                {
+                    var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
+                    RsaExtension.FromXmlString(privateRsa, privateKeyXml);
+                    var privateKey = new RsaSecurityKey(privateRsa);
+                    
+                    _rsaSigningCredentials = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
+                }
+                _rsaJwtHeader = new JwtHeader(_rsaSigningCredentials);
+                _rsaRawHeader = _rsaJwtHeader.Base64UrlEncode();
+
+                _popSecurityKey =  new SymmetricSecurityKey(Convert.FromBase64String(_configToken.PopSecretKey));
+            }
         }
 
         /// <summary>Cria o o token do parâmetro access_token. No caso obtém da resposta do POP.</summary>
@@ -62,25 +84,12 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
 
         private string _createTokenRsa(JwtSecurityTokenHandler handler, JwtSecurityToken securityTokenPop) 
         {    
-            SigningCredentials signingKey;
-                    
-            using(RSA privateRsa = RSA.Create())
-            {
-                var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
-                RsaExtension.FromXmlString(privateRsa, privateKeyXml);
-                var privateKey = new RsaSecurityKey(privateRsa);
-                
-                signingKey = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
-            }
-
-            JwtHeader header = new JwtHeader(signingKey);
-
             var payload = securityTokenPop.Payload;
-            string rawHeader = header.Base64UrlEncode();
+            
             string rawPayload = payload.Base64UrlEncode();
-            string rawSignature = _createEncodedSignature(string.Concat(rawHeader, ".", rawPayload), signingKey);
+            string rawSignature = _createEncodedSignature(string.Concat(_rsaRawHeader, ".", rawPayload), _rsaSigningCredentials);
 
-            var securityToken = new JwtSecurityToken(header, payload, rawHeader, rawPayload, rawSignature);
+            var securityToken = new JwtSecurityToken(_rsaJwtHeader, payload, _rsaRawHeader, rawPayload, rawSignature);
             
             return handler.WriteToken(securityToken);
         }
@@ -99,7 +108,7 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
                 ClockSkew = TimeSpan.Zero,
 
                 ValidIssuer = _configToken.Issuer,
-                IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(_configToken.PopSecretKey))
+                IssuerSigningKey = _popSecurityKey
             };
             
             SecurityToken retorno;
