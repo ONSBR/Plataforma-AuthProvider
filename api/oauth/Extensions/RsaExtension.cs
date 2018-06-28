@@ -7,7 +7,7 @@ namespace ONS.AuthProvider.OAuth.Extensions
 {
     public static class RsaExtension
     {
-        public static void FromXmlString(this RSA rsa, string xmlString)
+        public static void FromXmlContent(this RSA rsa, string xmlString)
         {
             var parameters = new RSAParameters();
             XmlDocument xmlDoc = new XmlDocument();

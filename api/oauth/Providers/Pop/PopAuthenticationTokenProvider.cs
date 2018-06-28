@@ -53,7 +53,7 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
             RSA privateRsa = RSA.Create();
             
             var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
-            RsaExtension.FromXmlString(privateRsa, privateKeyXml);
+            privateRsa.FromXmlContent(privateKeyXml);
             var privateKey = new RsaSecurityKey(privateRsa);
             
             _rsaSigningCredentials = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);

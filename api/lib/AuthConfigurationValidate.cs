@@ -43,7 +43,7 @@ namespace ONS.AuthProvider.Validator
             if (options.UseRsa) {
                 RSA publicRsa = RSA.Create();
                 var publicKeyXml = File.ReadAllText(options.FileRsaPublicKeyXml);
-                RsaExtension.FromXmlString(publicRsa, publicKeyXml);
+                publicRsa.FromXmlContent(publicKeyXml);
                 issuerSigningKey = new RsaSecurityKey(publicRsa);
             } else {
                 issuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(options.ValidSecretKey));
