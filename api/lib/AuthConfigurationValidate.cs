@@ -41,12 +41,10 @@ namespace ONS.AuthProvider.Validator
 
             SecurityKey issuerSigningKey;
             if (options.UseRsa) {
-                using(RSA publicRsa = RSA.Create())
-                {
-                    var publicKeyXml = File.ReadAllText(options.FileRsaPublicKeyXml);
-                    RsaExtension.FromXmlString(publicRsa, publicKeyXml);
-                    issuerSigningKey = new RsaSecurityKey(publicRsa);
-                }
+                RSA publicRsa = RSA.Create();
+                var publicKeyXml = File.ReadAllText(options.FileRsaPublicKeyXml);
+                RsaExtension.FromXmlString(publicRsa, publicKeyXml);
+                issuerSigningKey = new RsaSecurityKey(publicRsa);
             } else {
                 issuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(options.ValidSecretKey));
             }
