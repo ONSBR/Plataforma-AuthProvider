@@ -41,7 +41,12 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
             string accessToken = token.AccessToken;
 
             if (_configToken.UseRsa) {
-                
+
+                if (_logger.IsEnabled(LogLevel.Trace)) {
+                    var msg = string.Format("CreateAuthenticationCode POP - AccessToken: {0}", accessToken);
+                    _logger.LogTrace(msg);
+                }
+
                 var handler = new JwtSecurityTokenHandler();
                 var securityTokenPop = _getValidateSecurityTokenPop(handler, accessToken);
 
@@ -68,14 +73,15 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
                 signingKey = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
             }
 
-            var header = securityTokenPop.Header;
+            JwtHeader header = new JwtHeader(signingKey);
+
             var payload = securityTokenPop.Payload;
             string rawHeader = header.Base64UrlEncode();
             string rawPayload = payload.Base64UrlEncode();
             string rawSignature = _createEncodedSignature(string.Concat(rawHeader, ".", rawPayload), signingKey);
 
             var securityToken = new JwtSecurityToken(header, payload, rawHeader, rawPayload, rawSignature);
-
+            
             return handler.WriteToken(securityToken);
         }
 
@@ -86,6 +92,7 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
                 ValidateIssuer = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
+                ValidateAudience = false,
 
                 RequireExpirationTime = true, 
                 RequireSignedTokens = true, 

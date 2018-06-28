@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ONS.AuthProvider.Test.Web.Controllers
 {
-    [Authorize(Roles = "Servico2")]
+    [Authorize(Roles = "Servico")]
     [Route("api/protected")]
     [ApiController]
     public class ProtectedController : ControllerBase

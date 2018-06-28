@@ -216,7 +216,6 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
         {
             var claims = new List<Claim>();
             claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")));
-            claims.Add(new Claim(JwtRegisteredClaimNames.UniqueName, username));
 
             foreach (var role in _configuration.Roles) {
                 claims.Add(new Claim(GrantRole, role));
