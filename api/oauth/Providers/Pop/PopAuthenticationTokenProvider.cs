@@ -28,10 +28,11 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
         private readonly JwtToken _configToken;
 
         // Configuração de RSA
-        private readonly JwtHeader _rsaJwtHeader;
-        private readonly string _rsaRawHeader;
-        private readonly SigningCredentials _rsaSigningCredentials;
-        private readonly SecurityKey _popSecurityKey;
+        private JwtHeader _rsaJwtHeader;
+        private string _rsaRawHeader;
+        private SigningCredentials _rsaSigningCredentials;
+        
+        private TokenValidationParameters _popTokenValidationParameters;
 
         public PopAuthenticationTokenProvider(JwtToken configToken): base() {
             _logger = AuthLoggerFactory.Get<PopAuthenticationTokenProvider>();
@@ -40,19 +41,41 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
 
             if (_configToken.UseRsa) {
                 
-                using(RSA privateRsa = RSA.Create())
-                {
-                    var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
-                    RsaExtension.FromXmlString(privateRsa, privateKeyXml);
-                    var privateKey = new RsaSecurityKey(privateRsa);
-                    
-                    _rsaSigningCredentials = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
-                }
-                _rsaJwtHeader = new JwtHeader(_rsaSigningCredentials);
-                _rsaRawHeader = _rsaJwtHeader.Base64UrlEncode();
-
-                _popSecurityKey =  new SymmetricSecurityKey(Convert.FromBase64String(_configToken.PopSecretKey));
+                _loadRsaConfiguration();
+                _loadPopTokenValidation();
             }
+        }
+
+        private void _loadRsaConfiguration() 
+        {
+            using(RSA privateRsa = RSA.Create())
+            {
+                var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
+                RsaExtension.FromXmlString(privateRsa, privateKeyXml);
+                var privateKey = new RsaSecurityKey(privateRsa);
+                
+                _rsaSigningCredentials = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
+            }
+            _rsaJwtHeader = new JwtHeader(_rsaSigningCredentials);
+            _rsaRawHeader = _rsaJwtHeader.Base64UrlEncode();
+        }
+
+        private void _loadPopTokenValidation() 
+        {
+            _popTokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidateAudience = false,
+
+                RequireExpirationTime = true, 
+                RequireSignedTokens = true, 
+                ClockSkew = TimeSpan.Zero,
+
+                ValidIssuer = _configToken.Issuer,
+                IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(_configToken.PopSecretKey))
+            };
         }
 
         /// <summary>Cria o o token do parâmetro access_token. No caso obtém da resposta do POP.</summary>
@@ -70,9 +93,11 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
                 }
 
                 var handler = new JwtSecurityTokenHandler();
-                var securityTokenPop = _getValidateSecurityTokenPop(handler, accessToken);
 
-                accessToken = _createTokenRsa(handler, securityTokenPop);
+                SecurityToken securityTokenPop;
+                handler.ValidateToken(accessToken, _popTokenValidationParameters, out securityTokenPop);
+
+                accessToken = _createTokenRsa(handler, (JwtSecurityToken) securityTokenPop);
             } 
             
             context.SetToken(accessToken);
@@ -92,29 +117,6 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
             var securityToken = new JwtSecurityToken(_rsaJwtHeader, payload, _rsaRawHeader, rawPayload, rawSignature);
             
             return handler.WriteToken(securityToken);
-        }
-
-        private JwtSecurityToken _getValidateSecurityTokenPop(JwtSecurityTokenHandler handler, string accessToken) {
-            
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidateAudience = false,
-
-                RequireExpirationTime = true, 
-                RequireSignedTokens = true, 
-                ClockSkew = TimeSpan.Zero,
-
-                ValidIssuer = _configToken.Issuer,
-                IssuerSigningKey = _popSecurityKey
-            };
-            
-            SecurityToken retorno;
-            handler.ValidateToken(accessToken, tokenValidationParameters, out retorno);
-            
-            return (JwtSecurityToken) retorno;
         }
 
         private string _createEncodedSignature(string input, SigningCredentials signingCredentials)

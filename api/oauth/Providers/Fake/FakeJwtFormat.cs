@@ -36,9 +36,27 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
         private readonly ILogger<FakeJwtFormat> _logger;
         private readonly JwtToken _configToken;
 
+        private readonly SigningCredentials _signingCredentials;
+
         public FakeJwtFormat(JwtToken configToken) {
+
             _logger = AuthLoggerFactory.Get<FakeJwtFormat>();
             _configToken = configToken;
+
+            if (_configToken.UseRsa) {
+                
+                using(RSA privateRsa = RSA.Create())
+                {
+                    var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
+                    RsaExtension.FromXmlString(privateRsa, privateKeyXml);
+                    var privateKey = new RsaSecurityKey(privateRsa);
+                    
+                    _signingCredentials = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
+                }
+            } else {
+                var key = new SymmetricSecurityKey(Convert.FromBase64String(_configToken.SecretKey));
+                _signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);    
+            }
         }
 
         ///<summary>Método responsável por gerar o token no formato Jwt para 
@@ -64,28 +82,12 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
                 _logger.LogTrace(string.Format("Generating token with issued: {0}, expires:{1}.", issued, expires));
             }
 
-            SigningCredentials signingKey;
-            if (_configToken.UseRsa) {
-                
-                using(RSA privateRsa = RSA.Create())
-                {
-                    var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
-                    RsaExtension.FromXmlString(privateRsa, privateKeyXml);
-                    var privateKey = new RsaSecurityKey(privateRsa);
-                    
-                    signingKey = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
-                }
-            } else {
-                var key = new SymmetricSecurityKey(Convert.FromBase64String(_configToken.SecretKey));
-                signingKey = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);    
-            }
-
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
             {
                 Issuer = _configToken.Issuer,
                 Audience = audience,
-                SigningCredentials = signingKey,
+                SigningCredentials = _signingCredentials,
                 Subject = identity,
                 NotBefore = issued.Value.UtcDateTime,
                 Expires = expires.Value.UtcDateTime
