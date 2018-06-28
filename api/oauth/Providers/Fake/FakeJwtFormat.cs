@@ -45,8 +45,9 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
 
             if (_configToken.UseRsa) {
                 
-                using(RSA privateRsa = RSA.Create())
+                //using(RSA privateRsa = RSA.Create())
                 {
+                    RSA privateRsa = RSA.Create();
                     var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
                     RsaExtension.FromXmlString(privateRsa, privateKeyXml);
                     var privateKey = new RsaSecurityKey(privateRsa);
