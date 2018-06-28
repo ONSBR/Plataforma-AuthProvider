@@ -48,14 +48,14 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
 
         private void _loadRsaConfiguration() 
         {
-            using(RSA privateRsa = RSA.Create())
-            {
-                var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
-                RsaExtension.FromXmlString(privateRsa, privateKeyXml);
-                var privateKey = new RsaSecurityKey(privateRsa);
-                
-                _rsaSigningCredentials = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
-            }
+            RSA privateRsa = RSA.Create();
+            
+            var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
+            RsaExtension.FromXmlString(privateRsa, privateKeyXml);
+            var privateKey = new RsaSecurityKey(privateRsa);
+            
+            _rsaSigningCredentials = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
+            
             _rsaJwtHeader = new JwtHeader(_rsaSigningCredentials);
             _rsaRawHeader = _rsaJwtHeader.Base64UrlEncode();
         }

@@ -44,16 +44,12 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
             _configToken = configToken;
 
             if (_configToken.UseRsa) {
+                RSA privateRsa = RSA.Create();
+                var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
+                RsaExtension.FromXmlString(privateRsa, privateKeyXml);
+                var privateKey = new RsaSecurityKey(privateRsa);
                 
-                //using(RSA privateRsa = RSA.Create())
-                {
-                    RSA privateRsa = RSA.Create();
-                    var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
-                    RsaExtension.FromXmlString(privateRsa, privateKeyXml);
-                    var privateKey = new RsaSecurityKey(privateRsa);
-                    
-                    _signingCredentials = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
-                }
+                _signingCredentials = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
             } else {
                 var key = new SymmetricSecurityKey(Convert.FromBase64String(_configToken.SecretKey));
                 _signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);    
