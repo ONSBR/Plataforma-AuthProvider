@@ -21,25 +21,16 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
     /// o processamento de solicitações.</summary>
     public class FakeAuthorizationProvider : OAuthAuthorizationServerProvider
     {
-        private const string KeyConfigFakeJwtUsername = "Auth:Server:Adapters:Fake:Jwt.Username";
-        private const string KeyConfigFakeJwtPassword = "Auth:Server:Adapters:Fake:Jwt.Password";     
-        private const string KeyConfigFakeJwtClientId = "Auth:Server:Adapters:Fake:Jwt.Token:Audience";   
-        private const string KeyConfigFakeJwtRole = "Auth:Server:Adapters:Fake:Jwt.Token:Role";
-
         private const string GrantRole = "role";
         
         private readonly ILogger<FakeAuthorizationProvider> _logger;
-        private readonly string[] _configClientIds;
-        private readonly string[] _configRoles;
+        private readonly FakeConfiguration _configuration;
 
-        public FakeAuthorizationProvider(): base() {
+        public FakeAuthorizationProvider(FakeConfiguration configuration): base() {
             
-            _logger = AuthLoggerFactory.Get<FakeAuthorizationProvider>();
-            var configStrClientIds = AuthConfiguration.Get(KeyConfigFakeJwtClientId);
-            _configClientIds = configStrClientIds.Split(",");
+            _configuration = configuration;
 
-            var configStrRoles = AuthConfiguration.Get(KeyConfigFakeJwtRole);
-            _configRoles = !string.IsNullOrEmpty(configStrRoles) ? configStrRoles.Split(",") : new string[0];
+            _logger = AuthLoggerFactory.Get<FakeAuthorizationProvider>();
         }
 
         /// <summary>
@@ -70,7 +61,7 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
             if (context.TryGetBasicCredentials(out clientId, out clientSecret) ||
                 context.TryGetFormCredentials(out clientId, out clientSecret))
             {
-                if (Array.IndexOf(_configClientIds, clientId) >= 0) {
+                if (Array.IndexOf(_configuration.Audiences, clientId) >= 0) {
                     context.HttpContext.Items[Constants.Parameters.ClientId] = clientId;
                     context.Validated();
                 } else {
@@ -149,8 +140,8 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
                 return retorno;
             }
 
-            var configUsername = AuthConfiguration.Get(KeyConfigFakeJwtUsername);
-            var configPassword = AuthConfiguration.Get(KeyConfigFakeJwtPassword);
+            var configUsername = _configuration.Credentials.Username;
+            var configPassword = _configuration.Credentials.Password;
 
             var pwdEncrypt = Crypto.Sha256(password);
             if (_logger.IsEnabled(LogLevel.Trace)) {
@@ -227,7 +218,7 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
             claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")));
             claims.Add(new Claim(JwtRegisteredClaimNames.UniqueName, username));
 
-            foreach (var role in _configRoles) {
+            foreach (var role in _configuration.Roles) {
                 claims.Add(new Claim(GrantRole, role));
             }
 

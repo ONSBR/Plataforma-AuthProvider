@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Owin" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Owin" Version="2.1.1" />
     <ProjectReference Include="..\..\api\lib\ONS.AuthProvider.Validator.csproj" />
   </ItemGroup>
 

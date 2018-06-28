@@ -1,11 +1,12 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using OAuth.AspNet.AuthServer;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Collections.Concurrent;
+using System.Security.Cryptography;
 
 using System.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
@@ -24,7 +25,7 @@ using System.Collections.Specialized;
 
 using ONS.AuthProvider.OAuth.Util;
 using Microsoft.AspNetCore.Authentication;
-
+using ONS.AuthProvider.OAuth.Extensions;
 
 namespace ONS.AuthProvider.OAuth.Providers.Fake
 {
@@ -32,18 +33,12 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
     /// provedor de autenticação fake.</summary>
     public class FakeJwtFormat : ISecureDataFormat<AuthenticationTicket> 
     {
-        private const string KeyConfigFakeJwtSecret = "Auth:Server:Adapters:Fake:Jwt.Token:Key";
-        private const string KeyConfigFakeJwtIssuer = "Auth:Server:Adapters:Fake:Jwt.Token:Issuer";
-        
         private readonly ILogger<FakeJwtFormat> _logger;
+        private readonly JwtToken _configToken;
 
-        private readonly string _issuer;
-        private readonly string _configKey;
-
-        public FakeJwtFormat() {
+        public FakeJwtFormat(JwtToken configToken) {
             _logger = AuthLoggerFactory.Get<FakeJwtFormat>();
-            _issuer = AuthConfiguration.Get(KeyConfigFakeJwtIssuer);
-            _configKey = AuthConfiguration.Get(KeyConfigFakeJwtSecret);
+            _configToken = configToken;
         }
 
         ///<summary>Método responsável por gerar o token no formato Jwt para 
@@ -68,14 +63,27 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
             if (_logger.IsEnabled(LogLevel.Trace)) {
                 _logger.LogTrace(string.Format("Generating token with issued: {0}, expires:{1}.", issued, expires));
             }
-            
-            var key = new SymmetricSecurityKey(Convert.FromBase64String(_configKey));
-            var signingKey = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            SigningCredentials signingKey;
+            if (_configToken.UseRsa) {
+                
+                using(RSA privateRsa = RSA.Create())
+                {
+                    var privateKeyXml = File.ReadAllText(_configToken.RsaPrivateKeyXml);
+                    RsaExtension.FromXmlString(privateRsa, privateKeyXml);
+                    var privateKey = new RsaSecurityKey(privateRsa);
+                    
+                    signingKey = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
+                }
+            } else {
+                var key = new SymmetricSecurityKey(Convert.FromBase64String(_configToken.SecretKey));
+                signingKey = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);    
+            }
 
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
             {
-                Issuer = _issuer,
+                Issuer = _configToken.Issuer,
                 Audience = audience,
                 SigningCredentials = signingKey,
                 Subject = identity,

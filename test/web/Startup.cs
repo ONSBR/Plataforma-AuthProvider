@@ -15,9 +15,11 @@ namespace ONS.AuthProvider.Test.Web
 {
     public class Startup
     {
-        private const string ConfigPathAuthIssuer = "Auth:Validate:Issuer";
-        private const string ConfigPathAuthAudience = "Auth:Validate:Audience";
-        private const string ConfigPathAuthKey = "Auth:Validate:Key";
+        private const string KeyConfigIssuer = "Auth:Validate:Issuer";
+        private const string KeyConfigAudience = "Auth:Validate:Audience";
+        private const string KeyConfigSecretKey = "Auth:Validate:SecretKey";
+        private const string KeyConfigUseRsa = "Auth:Validate:UseRsa";
+        private const string KeyConfigRsaPublicKeyXml = "Auth:Validate:RsaPublicKeyXml";
 
         public Startup(IConfiguration configuration)
         {
@@ -36,10 +38,18 @@ namespace ONS.AuthProvider.Test.Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            var configIssuer = Configuration[KeyConfigIssuer];
+            var configAudience = Configuration[KeyConfigAudience];
+            var configSecretKey = Configuration[KeyConfigSecretKey];
+            var configUseRsa = "true".Equals(Configuration[KeyConfigUseRsa], StringComparison.InvariantCultureIgnoreCase);
+            var configRsaPublicKeyXml = Configuration[KeyConfigRsaPublicKeyXml];
+
             var authOptions = new AuthValidateOptions{
-                ValidIssuer = Configuration[ConfigPathAuthIssuer],
-                ValidAudience = Configuration[ConfigPathAuthAudience],
-                ValidKey = Configuration[ConfigPathAuthKey]
+                ValidIssuer = configIssuer,
+                ValidAudience = configAudience,
+                ValidSecretKey = configSecretKey,
+                UseRsa = configUseRsa,
+                FileRsaPublicKeyXml = configRsaPublicKeyXml
             };
             AuthConfigurationValidate.Configure(services, authOptions);
 

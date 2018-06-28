@@ -25,15 +25,14 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
     /// Com a tecnologia JWT é gerado um Token de validade de acesso para uso do client.</summary>
     public class PopAuthJwtService 
     {
-        private const string KeyConfigPathUrlPop = "Auth:Server:Adapters:Pop:Url.Jwt.OAuth";
-        private const string KeyConfigHeaderReferer = "Auth:Server:Adapters:Pop:Header.Referer.Default";     
-
         private readonly ILogger _logger;
-        private KeyValuePair<string,string>[] _replacesContent;
+        private readonly JwtToken _configToken;
+        private readonly KeyValuePair<string,string>[] _replacesContent;
 
-        public PopAuthJwtService() {
+        public PopAuthJwtService(JwtToken configToken) {
 
             _logger = AuthLoggerFactory.Get<PopAuthJwtService>();
+            _configToken = configToken;
             _replacesContent = new KeyValuePair<string,string>[] {
                 new KeyValuePair<string,string>("[&]password[=][^&]*[&]", "&password=XXXXX&")
             };
@@ -72,14 +71,14 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
                 var watch = new Stopwatch();
                 watch.Start();
 
-                url = AuthConfiguration.Get(KeyConfigPathUrlPop);
+                url = _configToken.UrlJwtOAuth;
 
                 using (HttpClient client = CreateHttpClient())
                 {
                     client.BaseAddress = new Uri(url);
 
                     if (string.IsNullOrEmpty(hostOrigin)) {
-                        hostOrigin = AuthConfiguration.Get(KeyConfigHeaderReferer);
+                        hostOrigin = _configToken.HeaderRefererDefault;
                     }
 
                     if (!string.IsNullOrEmpty(hostOrigin)) {

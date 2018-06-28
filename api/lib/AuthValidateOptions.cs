@@ -21,14 +21,17 @@ namespace ONS.AuthProvider.Validator
 
         public string ValidIssuer {get;set;}
         public string ValidAudience {get;set;}
-        public string ValidKey {get;set;}
+        public string ValidSecretKey {get;set;}
+
+        public bool UseRsa {get;set;} 
+        public string FileRsaPublicKeyXml {get;set;} 
 
         public ILogger Logger {get;set;}
 
         public override string ToString() {
             return string.Format(
-                "{0} {{ ValidIssuer={1}, ValidAudience={2}, ValidKey={3} }}", 
-                this.GetType().Name, ValidIssuer, ValidAudience, ValidKey
+                "{0} {{ ValidIssuer={1}, ValidAudience={2}, ValidSecretKey={3}, UseRsa={4}, FileRsaPublicKeyXml={5} }}", 
+                this.GetType().Name, ValidIssuer, ValidAudience, ValidSecretKey, UseRsa, FileRsaPublicKeyXml
             );
         }
     }

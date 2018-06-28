@@ -4,6 +4,7 @@ using System.Linq;
 using OAuth.AspNet.AuthServer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Builder;
 
 using ONS.AuthProvider.OAuth.Providers;
@@ -16,11 +17,8 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
     ///O adaptador do Pop permite fazer a configuração remota o servidor de autenticação padrão do ONS.</summary>
     public class PopAuthorizationAdapter: IAuthorizationAdapter 
     {   
-        private const string KeyConfigAuthorizePath = "Auth:Server:Adapters:Pop:AuthorizeEndpointPath";
-        private const string KeyConfigTokenPath = "Auth:Server:Adapters:Pop:TokenEndpointPath";
-        private const string KeyConfigAllowInsecureHttp = "Auth:Server:Adapters:Pop:AllowInsecureHttp";
-        private const string KeyConfigAutomaticAuthenticate = "Auth:Server:Adapters:Pop:AutomaticAuthenticate";
-        
+        private const string KeyConfigAdapterPop = "Auth:Server:Adapters:Pop";
+
         private readonly ILogger _logger;
 
         public PopAuthorizationAdapter() {
@@ -31,23 +29,21 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
         ///<param name="app">Aplicação de autenticação.</param>
         public void ConfigureApp(IApplicationBuilder app)  
         {
-            var authorizeEndpointPath = AuthConfiguration.Get(KeyConfigAuthorizePath);
-            var tokenEndpointPath = AuthConfiguration.Get(KeyConfigTokenPath);
-            var allowInsecureHttp = "true".Equals(AuthConfiguration.Get(KeyConfigAllowInsecureHttp));
-            var automaticAuthenticate = "true".Equals(AuthConfiguration.Get(KeyConfigAutomaticAuthenticate));
+            var config = _getConfiguration();
+            config.Validate();
 
-            var provider = new PopAuthorizationProvider();
-            var tokenProvider = new PopAuthenticationTokenProvider();
+            var provider = new PopAuthorizationProvider(config.JwtToken);
+            var tokenProvider = new PopAuthenticationTokenProvider(config.JwtToken);
             var refreshProvider = new PopRefreshTokenProvider();
 
             app.UseOAuthAuthorizationServer(options => {
 
-                options.AuthorizeEndpointPath = new PathString(authorizeEndpointPath);
-                options.TokenEndpointPath = new PathString(tokenEndpointPath);
+                options.AuthorizeEndpointPath = new PathString(config.AuthorizeEndpointPath);
+                options.TokenEndpointPath = new PathString(config.TokenEndpointPath);
                 options.ApplicationCanDisplayErrors = true;                       
-                options.AllowInsecureHttp = allowInsecureHttp;
+                options.AllowInsecureHttp = config.AllowInsecureHttp.Value;
 
-                options.AutomaticAuthenticate = automaticAuthenticate;
+                options.AutomaticAuthenticate = config.AutomaticAuthenticate.Value;
                 
                 options.Provider = provider;
                 options.AccessTokenProvider = tokenProvider;
@@ -55,6 +51,11 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
             });
         }
 
+        private PopConfiguration _getConfiguration() {
+            var section = AuthConfiguration.Configuration.GetSection(KeyConfigAdapterPop);
+            var configuration = section.Get<PopConfiguration>();
+            return configuration;
+        }
     }
 
 }

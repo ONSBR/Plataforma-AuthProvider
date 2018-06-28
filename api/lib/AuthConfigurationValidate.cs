@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Owin;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography;
 
 namespace ONS.AuthProvider.Validator
 {
@@ -37,6 +39,18 @@ namespace ONS.AuthProvider.Validator
                 }
             };
 
+            SecurityKey issuerSigningKey;
+            if (options.UseRsa) {
+                using(RSA publicRsa = RSA.Create())
+                {
+                    var publicKeyXml = File.ReadAllText(options.FileRsaPublicKeyXml);
+                    RsaExtension.FromXmlString(publicRsa, publicKeyXml);
+                    issuerSigningKey = new RsaSecurityKey(publicRsa);
+                }
+            } else {
+                issuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(options.ValidSecretKey));
+            }
+
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = options.ValidateIssuer,
@@ -50,7 +64,7 @@ namespace ONS.AuthProvider.Validator
 
                 ValidIssuer = options.ValidIssuer,
                 ValidAudience = options.ValidAudience,
-                IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(options.ValidKey))
+                IssuerSigningKey = issuerSigningKey
             };
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(optionsToken => {

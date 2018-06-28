@@ -4,11 +4,13 @@ using System.Linq;
 using OAuth.AspNet.AuthServer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Builder;
 
 using ONS.AuthProvider.OAuth.Providers;
 using ONS.AuthProvider.OAuth.Util;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 
 namespace ONS.AuthProvider.OAuth.Providers.Fake
 {
@@ -17,12 +19,7 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
     ///A geração do JWT segue as configurações do adaptador.</summary>
     public class FakeAuthorizationAdapter: IAuthorizationAdapter 
     {   
-        private const string KeyConfigAuthorizePath = "Auth:Server:Adapters:Fake:AuthorizeEndpointPath";
-        private const string KeyConfigTokenPath = "Auth:Server:Adapters:Fake:TokenEndpointPath";
-        private const string KeyConfigAllowInsecureHttp = "Auth:Server:Adapters:Fake:AllowInsecureHttp";
-        private const string KeyConfigAutomaticAuthenticate = "Auth:Server:Adapters:Fake:AutomaticAuthenticate";
-        private const string KeyConfigFakeJwtRefreshExpiration = "Auth:Server:Adapters:Fake:Jwt.Token:Refresh.Expiration.Minutes";
-        private const string KeyConfigFakeJwtExpiration = "Auth:Server:Adapters:Fake:Jwt.Token:Expiration.Minutes";
+        private const string KeyConfigAdapterFake = "Auth:Server:Adapters:Fake";
 
         private readonly ILogger _logger;
 
@@ -34,40 +31,41 @@ namespace ONS.AuthProvider.OAuth.Providers.Fake
         ///<param name="app">Aplicação de autenticação.</param>
         public void ConfigureApp(IApplicationBuilder app)  
         {
-            var authorizeEndpointPath = AuthConfiguration.Get(KeyConfigAuthorizePath);
-            var tokenEndpointPath = AuthConfiguration.Get(KeyConfigTokenPath);
-            var allowInsecureHttp = "true".Equals(AuthConfiguration.Get(KeyConfigAllowInsecureHttp));
-            var automaticAuthenticate = "true".Equals(AuthConfiguration.Get(KeyConfigAutomaticAuthenticate));
-
-            var expiration = Convert.ToDouble(AuthConfiguration.Get(KeyConfigFakeJwtExpiration));
-            var expirationRefreshToken = Convert.ToDouble(AuthConfiguration.Get(KeyConfigFakeJwtRefreshExpiration));
+            var config = _getConfiguration();
+            config.Validate();
 
             var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromMinutes(expirationRefreshToken))
+                .SetSlidingExpiration(TimeSpan.FromMinutes(config.JwtToken.RefreshExpiration.Value))
                 .RegisterPostEvictionCallback(callback: (object key, object value, EvictionReason reason, object state) => {
                     _logger.LogDebug(string.Format("Refresh token exprired. token:{0}", key));
                 }, state: this);
                 
             CacheManager.Cache.SetOptions(cacheEntryOptions);
 
-            var provider = new FakeAuthorizationProvider();
+            var provider = new FakeAuthorizationProvider(config);
             var refreshProvider = new FakeRefreshTokenProvider();
-            var accessTokenFormat = new FakeJwtFormat();
+            var accessTokenFormat = new FakeJwtFormat(config.JwtToken);
 
             app.UseOAuthAuthorizationServer(options => {
 
-                options.AuthorizeEndpointPath = new PathString(authorizeEndpointPath);
-                options.TokenEndpointPath = new PathString(tokenEndpointPath);
+                options.AuthorizeEndpointPath = new PathString(config.AuthorizeEndpointPath);
+                options.TokenEndpointPath = new PathString(config.TokenEndpointPath);
                 options.ApplicationCanDisplayErrors = true;                       
-                options.AllowInsecureHttp = allowInsecureHttp;
+                options.AllowInsecureHttp = config.AllowInsecureHttp.Value;
 
-                options.AutomaticAuthenticate = automaticAuthenticate;
-                options.AccessTokenExpireTimeSpan = TimeSpan.FromMinutes(expiration);
+                options.AutomaticAuthenticate = config.AutomaticAuthenticate.Value;
+                options.AccessTokenExpireTimeSpan = TimeSpan.FromMinutes(config.JwtToken.Expiration.Value);
                 
                 options.Provider = provider;
                 options.AccessTokenFormat = accessTokenFormat;
                 options.RefreshTokenProvider = refreshProvider;
             });
+        }
+
+        private FakeConfiguration _getConfiguration() {
+            var section = AuthConfiguration.Configuration.GetSection(KeyConfigAdapterFake);
+            var configuration = section.Get<FakeConfiguration>();
+            return configuration;
         }
 
     }

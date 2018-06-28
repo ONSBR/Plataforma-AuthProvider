@@ -24,10 +24,10 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
         private readonly ILogger<PopAuthorizationProvider> _logger;
         private readonly PopAuthJwtService _popService;
 
-        public PopAuthorizationProvider(): base() {
+        public PopAuthorizationProvider(JwtToken configToken): base() {
             
             _logger = AuthLoggerFactory.Get<PopAuthorizationProvider>();
-            _popService = new PopAuthJwtService();
+            _popService = new PopAuthJwtService(configToken);
         }
 
         /// <summary>
