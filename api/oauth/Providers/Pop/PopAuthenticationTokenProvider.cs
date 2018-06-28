@@ -42,7 +42,9 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
             if (_configToken.UseRsa) {
                 
                 _loadRsaConfiguration();
-                _loadPopTokenValidation();
+                if (_configToken.ValidatePopAccessToken) {
+                    _loadPopTokenValidation();
+                }
             }
         }
 
@@ -95,7 +97,11 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
                 var handler = new JwtSecurityTokenHandler();
 
                 SecurityToken securityTokenPop;
-                handler.ValidateToken(accessToken, _popTokenValidationParameters, out securityTokenPop);
+                if (_configToken.ValidatePopAccessToken) {
+                    handler.ValidateToken(accessToken, _popTokenValidationParameters, out securityTokenPop);
+                } else {
+                    securityTokenPop = handler.ReadJwtToken(accessToken);
+                }
 
                 accessToken = _createTokenRsa(handler, (JwtSecurityToken) securityTokenPop);
             } 

@@ -63,6 +63,9 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
         /// <summary>Configuração de referer default do header esperado pelo POP.</summary>
         public string HeaderRefererDefault { get; set; }
 
+        /// <summary>Configuração que indica se deve validar o token recebido do pop, com a chave configurada em PopSecretKey.</summary>
+        public bool ValidatePopAccessToken { get; set; }
+
         /// <summary>Configuração de chave para validação da assinatura do token do POP.</summary>
         public string PopSecretKey { get; set; }
 
@@ -86,11 +89,11 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
                     string.Format(msg, PropertyUtil.GetName(() => HeaderRefererDefault)));
             }
             if (UseRsa) {
+                if (ValidatePopAccessToken && string.IsNullOrEmpty(PopSecretKey)) {
+                    throw new Exception(string.Format(msg, PropertyUtil.GetName(() => PopSecretKey)));
+                }
                 if (string.IsNullOrEmpty(Issuer)) {
                     throw new Exception(string.Format(msg, PropertyUtil.GetName(() => Issuer)));
-                }        
-                if (string.IsNullOrEmpty(PopSecretKey)) {
-                    throw new Exception(string.Format(msg, PropertyUtil.GetName(() => PopSecretKey)));
                 }
                 if (string.IsNullOrEmpty(RsaPrivateKeyXml)) {
                     throw new Exception(string.Format(msg, PropertyUtil.GetName(() => RsaPrivateKeyXml)));
