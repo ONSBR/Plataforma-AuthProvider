@@ -15,13 +15,13 @@
 				"header": [
 					{
 						"key": "Content-Type",
-						"value": "application/json",
+						"value": "application/x-www-form-urlencoded",
 						"description": ""
 					}
 				],
                 "body": {
                     "mode": "raw",
-					"raw": "{\n\t\"username\": \"user\",\n\t\"password\": \"teste\",\n\t\"client_id\": \"INTANEEL\",\n\t\"grant_type\": \"password\"\n}"
+					"raw": "username=ONS%5Cuser.pitang&password=teste&client_id=INTANEEL&grant_type=password"
                 },
 				"description": ""
 			},
@@ -35,13 +35,13 @@
 				"header": [
 					{
 						"key": "Content-Type",
-						"value": "application/json",
+						"value": "application/x-www-form-urlencoded",
 						"description": ""
 					}
 				],
                 "body": {
                     "mode": "raw",
-					"raw": "{\n\t\"refresh_token\": \"ayyK23J0Fey/XINmCuiO9knbL4rtnpKK5QC06FO7NGk=\",\n\t\"client_id\": \"INTANEEL\",\n\t\"grant_type\": \"refresh_token\"\n}"
+					"raw": "refresh_token=vX5U%2BTrlec6AUTcgsXonMfMrxTA65K9%2FB%2FerH8L%2F%2B1U%3D&client_id=INTANEEL&grant_type=refresh_token"
                 },
 				"description": ""
 			},
