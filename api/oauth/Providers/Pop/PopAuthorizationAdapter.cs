@@ -32,6 +32,11 @@ namespace ONS.AuthProvider.OAuth.Providers.Pop
             var config = _getConfiguration();
             config.Validate();
 
+            var configUrlJwtOAuth = System.Environment.GetEnvironmentVariable("PopUrlJwtOAuth");
+            if (!string.IsNullOrEmpty(configUrlJwtOAuth)) {
+                config.JwtToken.UrlJwtOAuth = configUrlJwtOAuth;
+            }
+            
             var provider = new PopAuthorizationProvider(config.JwtToken);
             var tokenProvider = new PopAuthenticationTokenProvider(config.JwtToken);
             var refreshProvider = new PopRefreshTokenProvider();

@@ -20,7 +20,10 @@ namespace ONS.AuthProvider.OAuth.Providers
 
         private static string _getAdapterType() 
         {
-            var configAuthServerAdapterUsage = AuthConfiguration.Get(KeyConfigAuthServerAdapterUsage);
+            var configAuthServerAdapterUsage = System.Environment.GetEnvironmentVariable("AdapterUsage");
+            if (string.IsNullOrEmpty(configAuthServerAdapterUsage)) {
+                configAuthServerAdapterUsage = AuthConfiguration.Get(KeyConfigAuthServerAdapterUsage);
+            }
             
             var keyConfigAdapterType = string.Format(
                 "{0}:{1}:{2}", 
