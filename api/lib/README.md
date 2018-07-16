@@ -24,7 +24,9 @@ using ONS.AuthProvider.Validator;
       AuthConfigurationValidate.Configure(services, new AuthValidateOptions{
           ValidIssuer = <issuer>,
           ValidAudience = <audience>,
-          ValidKey = <key>
+          ValidKey = <key>,
+          UseRsa = <useRsa>,
+          FileRsaPublicKeyXml = <fileNameRsaPublicKeyXml>
       });
       ...
       services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
