@@ -148,7 +148,7 @@ namespace ONS.AuthProvider.Adapter.Fake.Providers
             
             var configUsername = _configuration.Credentials.Username;
             var configPassword = _configuration.Credentials.Password;
-            var cookie = context.HttpContext.Request.Headers["Cookie"];
+            string cookie = context.HttpContext.Request.Headers["Cookie"];
 
             var validateUsername = false;
             var validatePassword = false;
@@ -170,7 +170,7 @@ namespace ONS.AuthProvider.Adapter.Fake.Providers
                 validateUsername = string.Equals(username, configUsername);
                 validatePassword = string.Equals(pwdEncrypt, configPassword);
             }
-            else if (!string.IsNullOrEmpty(cookie))
+            else if (!string.IsNullOrEmpty(cookie) && cookie.Contains(".ONSAUTH_VTPOP_01"))
             {
                 validateUsername = true;
                 validatePassword = true;
