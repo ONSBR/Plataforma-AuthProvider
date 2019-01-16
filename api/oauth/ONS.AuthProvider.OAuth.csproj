@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Authors>ONS</Authors>
+    <Company>ONS</Company>
+    <Description>Serviços de controle de acesso da plataforma</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,6 +35,11 @@
     <Content Include="rsa-public-key.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\common\ONS.AuthProvider.Common.csproj" />
+    <ProjectReference Include="..\providers\ONS.AuthProvider.Adapter.Fake\ONS.AuthProvider.Adapter.Fake.csproj" />
+    <ProjectReference Include="..\providers\ONS.AuthProvider.Adapter.Pop\ONS.AuthProvider.Adapter.Pop.csproj" />
   </ItemGroup>
 
 </Project>

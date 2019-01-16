@@ -1,5 +1,3 @@
-using System;
-
 namespace ONS.AuthProvider.Test.Web.Models
 {
     public class ErrorViewModel

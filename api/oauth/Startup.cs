@@ -1,34 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using OAuth.AspNet.AuthServer;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Caching.Memory;
-
-using Microsoft.AspNetCore.Http;
-using ONS.AuthProvider.OAuth.Providers;
-using ONS.AuthProvider.OAuth.Providers.Pop;
-using ONS.AuthProvider.OAuth.Providers.Fake;
-using ONS.AuthProvider.OAuth.Util;
+using ONS.AuthProvider.Common.Providers;
+using ONS.AuthProvider.Common.Util;
 
 namespace ONS.AuthProvider.OAuth
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env) {
-
+        public Startup(IHostingEnvironment env)
+        {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddJsonFile("appsettings.json", false, true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true)
                 .AddEnvironmentVariables();
             AuthConfiguration.Configuration = builder.Build();
         }
@@ -41,32 +30,28 @@ namespace ONS.AuthProvider.OAuth
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, 
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env,
             ILoggerFactory loggerFactory, ILogger<Startup> logger, IMemoryCache memoryCache)
         {
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
             loggerFactory.AddConsole(AuthConfiguration.Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-            
+
             _configureAuthProvider(app, loggerFactory, logger, memoryCache);
-            
+
             app.UseMvc();
 
             logger.LogDebug("Sistema inicializado com sucesso.");
         }
 
-        private void _configureAuthProvider(IApplicationBuilder app, ILoggerFactory loggerFactory, 
-            ILogger<Startup> logger, IMemoryCache memoryCache) 
-        { 
+        private void _configureAuthProvider(IApplicationBuilder app, ILoggerFactory loggerFactory,
+            ILogger<Startup> logger, IMemoryCache memoryCache)
+        {
             AuthLoggerFactory.LoggerFactory = loggerFactory;
 
             AuthConfiguration.Logger = loggerFactory.CreateLogger<AuthConfiguration>();
-    
+
             CacheManager.Init(memoryCache);
 
             _configureTempDir(logger);
@@ -74,19 +59,20 @@ namespace ONS.AuthProvider.OAuth
             AuthorizationAdapterFactory.Use().ConfigureApp(app);
         }
 
-        private void _configureTempDir(ILogger<Startup> logger) {
-            var dirTemp = System.Environment.GetEnvironmentVariable("Temp");
+        private void _configureTempDir(ILogger<Startup> logger)
+        {
+            var dirTemp = Environment.GetEnvironmentVariable("Temp");
 
-            if (string.IsNullOrEmpty(dirTemp)) {
-
+            if (string.IsNullOrEmpty(dirTemp))
+            {
                 logger.LogWarning("Não encontrada variável de ambiente, para pasta temporária. ENV [Temp].");
 
                 dirTemp = AuthConfiguration.Get("Auth:Server:TempDir");
 
-                System.Environment.SetEnvironmentVariable("Temp", dirTemp);
+                Environment.SetEnvironmentVariable("Temp", dirTemp);
 
                 logger.LogWarning(string.Format("Será utilizada configuração" +
-                 " default: Auth:Server:TempDir={0}", dirTemp));                
+                                                " default: Auth:Server:TempDir={0}", dirTemp));
             }
         }
     }

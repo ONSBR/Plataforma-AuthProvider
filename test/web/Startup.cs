@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,10 +37,12 @@ namespace ONS.AuthProvider.Test.Web
             var configIssuer = Configuration[KeyConfigIssuer];
             var configAudience = Configuration[KeyConfigAudience];
             var configSecretKey = Configuration[KeyConfigSecretKey];
-            var configUseRsa = "true".Equals(Configuration[KeyConfigUseRsa], StringComparison.InvariantCultureIgnoreCase);
+            var configUseRsa =
+                "true".Equals(Configuration[KeyConfigUseRsa], StringComparison.InvariantCultureIgnoreCase);
             var configRsaPublicKeyXml = Configuration[KeyConfigRsaPublicKeyXml];
 
-            var authOptions = new AuthValidateOptions{
+            var authOptions = new AuthValidateOptions
+            {
                 ValidIssuer = configIssuer,
                 ValidAudience = configAudience,
                 ValidSecretKey = configSecretKey,
@@ -77,8 +75,8 @@ namespace ONS.AuthProvider.Test.Web
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    "default",
+                    "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

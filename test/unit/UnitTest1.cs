@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Tests
+namespace ONS.AuthProvider.Test.Unit
 {
     public class Tests
     {

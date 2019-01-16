@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Security.Claims;
-using System.Web.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ONS.AuthProvider.Test.Web.Controllers
 {
@@ -22,8 +18,8 @@ namespace ONS.AuthProvider.Test.Web.Controllers
 
             return identity.Claims.Select(c => new
             {
-                Type = c.Type,
-                Value = c.Value
+                c.Type,
+                c.Value
             });
         }
     }

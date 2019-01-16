@@ -79,8 +79,12 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu pull-right">
-                                <li><a id="Testar">Testar</a></li>
-                                <li><a id="Regerar">Regerar Token</a></li>
+                                <li>
+                                    <a id="Testar">Testar</a>
+                                </li>
+                                <li>
+                                    <a id="Regerar">Regerar Token</a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -114,51 +118,51 @@
                 "content-type": "application/x-www-form-urlencoded",
                 "accept": "application/json"
             }
-        }
-    
-        $("#enviar").click(function () {
-            
+        };
+
+        $("#enviar").click(function() {
+
             settings.url = $("#url").val();
             settings.data = {
                 "username": $("#login").val(),
                 "password": $("#senha").val(),
                 "grant_type": "password",
                 "client_id": $("#client_id").val()
-            }
+            };
 
             console.log(settings);
-            $.ajax(settings).done(function (response) {
+            $.ajax(settings).done(function(response) {
                 console.log(response);
-                $("#textarea").val(JSON.stringify(response))
-                $("#token").val(response.access_token)
-                $("#refreshToken").val(response.refresh_token)
-            }).fail(function (xhr, status, err) {
-                $("#textarea").val(xhr.responseText)
+                $("#textarea").val(JSON.stringify(response));
+                $("#token").val(response.access_token);
+                $("#refreshToken").val(response.refresh_token);
+            }).fail(function(xhr, status, err) {
+                $("#textarea").val(xhr.responseText);
             });
             return;
-        })
+        });
 
-        $("#Regerar").click(function () {
+        $("#Regerar").click(function() {
 
             settings.url = $("#url").val();
             settings.data = {
                 "grant_type": "refresh_token",
                 "client_id": $("#client_id").val(),
                 "refresh_token": $("#refreshToken").val()
-            }
+            };
 
-            $.ajax(settings).done(function (response) {
+            $.ajax(settings).done(function(response) {
                 console.log(response);
-                $("#textarea").val(JSON.stringify(response))
-                $("#token").val(response.access_token)
-                $("#refreshToken").val(response.refresh_token)
-            }).fail(function (xhr, status, err) {
-                $("#textarea").val(xhr.responseText)
+                $("#textarea").val(JSON.stringify(response));
+                $("#token").val(response.access_token);
+                $("#refreshToken").val(response.refresh_token);
+            }).fail(function(xhr, status, err) {
+                $("#textarea").val(xhr.responseText);
             });
             return;
-        })
+        });
 
-        $("#Testar").click(function () {
+        $("#Testar").click(function() {
             var settings = {
                 "async": true,
                 "crossDomain": true,
@@ -170,16 +174,16 @@
                     "authorization": "Bearer " + $("#token").val(),
                     "cache-control": "no-cache",
                 }
-            }
+            };
 
-            $.ajax(settings).done(function (response) {
-                $("#textarea-protected").val(JSON.stringify(response))
+            $.ajax(settings).done(function(response) {
+                $("#textarea-protected").val(JSON.stringify(response));
                 console.log(response);
-            }).fail(function (xhr, status, err) {
+            }).fail(function(xhr, status, err) {
                 if (xhr.status == 401)
-                    $("#textarea-protected").val(xhr.responseText)
+                    $("#textarea-protected").val(xhr.responseText);
             });
-        })
+        });
     }
 
     $(document).ready(onload);
