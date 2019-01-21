@@ -77,7 +77,7 @@ namespace ONS.AuthProvider.Adapter.Pop.Providers
 
                     if (!string.IsNullOrEmpty(hostOrigin)) client.DefaultRequestHeaders.Add("Origin", hostOrigin);
 
-                    if (!string.IsNullOrEmpty(cookiesValue)) client.DefaultRequestHeaders.Add("Cookie", hostOrigin);
+                    if (!string.IsNullOrEmpty(cookiesValue)) client.DefaultRequestHeaders.Add("Cookie", cookiesValue);
 
                     var queryString = query.ToString();
 
