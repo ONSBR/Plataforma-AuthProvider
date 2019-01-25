@@ -24,6 +24,9 @@ namespace ONS.AuthProvider.Adapter.Fake.Providers
         /// <summary>Configuração de roles válidos de autenticação.</summary>
         public string[] Roles { get; set; }
 
+        /// <summary>Configuração de operações de permissões válidas do usuário.</summary>
+        public string[] Operations { get; set; }
+
         /// <summary>Configuração de credenciais válidas para autenticação.</summary>
         public Credentials Credentials { get; set; }
 
@@ -50,9 +53,6 @@ namespace ONS.AuthProvider.Adapter.Fake.Providers
             if (Audiences == null || Audiences.Length == 0)
                 throw new Exception(
                     string.Format(msg, PropertyUtil.GetName(() => Audiences)));
-            if (Roles == null || Roles.Length == 0)
-                throw new Exception(
-                    string.Format(msg, PropertyUtil.GetName(() => Roles)));
             if (Credentials == null)
                 throw new Exception(
                     string.Format(msg, PropertyUtil.GetName(() => Credentials)));

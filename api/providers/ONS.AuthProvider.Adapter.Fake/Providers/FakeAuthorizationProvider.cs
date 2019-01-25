@@ -20,7 +20,9 @@ namespace ONS.AuthProvider.Adapter.Fake.Providers
     /// </summary>
     public class FakeAuthorizationProvider : OAuthAuthorizationServerProvider
     {
-        private const string GrantRole = "role";
+        private const string ClaimTypeRole = "role";
+        private const string ClaimTypeOperatioin = "http://schemas.xmlsoap.org/ws/2015/07/identity/claims/operation";
+
         private readonly FakeConfiguration _configuration;
 
         private readonly ILogger<FakeAuthorizationProvider> _logger;
@@ -254,7 +256,11 @@ namespace ONS.AuthProvider.Adapter.Fake.Providers
             var claims = new List<Claim>();
             claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")));
 
-            foreach (var role in _configuration.Roles) claims.Add(new Claim(GrantRole, role));
+            if (_configuration.Roles != null)
+                foreach (var role in _configuration.Roles) claims.Add(new Claim(ClaimTypeRole, role));
+
+            if (_configuration.Operations != null)
+                foreach (var operation in _configuration.Operations) claims.Add(new Claim(ClaimTypeOperatioin, operation));
 
             return new ClaimsIdentity(
                 new GenericIdentity(username, "Login"),
